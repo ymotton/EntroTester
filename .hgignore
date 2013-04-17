@@ -1,0 +1,7 @@
+.*ReSharper.*
+.*obj/.*
+.*bin
+.*TestResults.*
+.*suo.*
+.*\.user
+.*nupkg*

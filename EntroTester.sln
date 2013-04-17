@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntroTester", "EntroTester\EntroTester.csproj", "{C2074150-D327-4997-8D7E-69CB9A90F488}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntroTester.Tests", "EntroTester.Tests\EntroTester.Tests.csproj", "{CE6E5566-C470-42C1-ABBD-4FEFCB06B214}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C2074150-D327-4997-8D7E-69CB9A90F488}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C2074150-D327-4997-8D7E-69CB9A90F488}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C2074150-D327-4997-8D7E-69CB9A90F488}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C2074150-D327-4997-8D7E-69CB9A90F488}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CE6E5566-C470-42C1-ABBD-4FEFCB06B214}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CE6E5566-C470-42C1-ABBD-4FEFCB06B214}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CE6E5566-C470-42C1-ABBD-4FEFCB06B214}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CE6E5566-C470-42C1-ABBD-4FEFCB06B214}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
