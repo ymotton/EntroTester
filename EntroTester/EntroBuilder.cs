@@ -20,15 +20,15 @@ namespace EntroTester
         }
 
         readonly Dictionary<PropertyInfo, IGenerator> _possibleValueSelectors = new Dictionary<PropertyInfo, IGenerator>();
-        public EntroBuilder<T> ForProperty<TProperty>(Expression<Func<T, TProperty>> propertyExpression, IGenerator<TProperty> generator)
+        public EntroBuilder<T> Property<TProperty>(Expression<Func<T, TProperty>> propertyExpression, IGenerator<TProperty> generator)
         {
             var propertyInfo = propertyExpression.GetPropertyInfo();
             _possibleValueSelectors[propertyInfo] = generator;
             return this;
         }
-        public EntroBuilder<T> ForProperty<TProperty>(Expression<Func<T, TProperty>> propertyExpression, IEnumerable<TProperty> sequence)
+        public EntroBuilder<T> Property<TProperty>(Expression<Func<T, TProperty>> propertyExpression, IEnumerable<TProperty> sequence)
         {
-            var result = ForProperty(propertyExpression, new SequenceGenerator<TProperty>(sequence));
+            var result = Property(propertyExpression, new SequenceGenerator<TProperty>(sequence));
             return result;
         }
 

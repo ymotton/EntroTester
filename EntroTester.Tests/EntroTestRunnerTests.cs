@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace EntroTester.Tests
 {
@@ -10,9 +11,9 @@ namespace EntroTester.Tests
         public void Run()
         {
             EntroTestRunner.Run(
-                EntroBuilder.Create<Container>()
-                            .ForProperty(c => c.Value1, Any.ValueBetween(-100, 100))
-                            .ForProperty(c => c.Value2, Any.ValueBetween(-100, 100)), 
+                EntroBuilder.Create<ParameterlessCtorTuple<int, int>>()
+                            .Property(c => c.Item1, Any.ValueBetween(-100, 100))
+                            .Property(c => c.Item2, Any.ValueBetween(-100, 100)), 
                 SystemUnderTest.HaveAFailingBranch,
                 m => m == true,
                 1000000);
@@ -23,34 +24,82 @@ namespace EntroTester.Tests
         {
             var faulty = 
                 EntroTestRunner.Replay(
-                    EntroBuilder.Create<Container>()
-                            .ForProperty(c => c.Value1, Any.ValueBetween(-100, 100))
-                            .ForProperty(c => c.Value2, Any.ValueBetween(-100, 100)),
+                    EntroBuilder.Create<ParameterlessCtorTuple<int, int>>()
+                            .Property(c => c.Item1, Any.ValueBetween(-100, 100))
+                            .Property(c => c.Item2, Any.ValueBetween(-100, 100)),
                     5889973,
                     40263);
 
             var result = SystemUnderTest.HaveAFailingBranch(faulty);
             Assert.AreEqual(false, result);
         }
+
+        [TestMethod]
+        [ExpectedException(typeof(ExpectedResultException<int>))]
+        public void Run2()
+        {
+            EntroTestRunner.Run(
+                EntroBuilder.Create<ParameterlessCtorTuple<int, int>>()
+                            .Property(c => c.Item1, Any.ValueBetween(-100, 100))
+                            .Property(c => c.Item2, Any.ValueBetween(-100, 100)),
+                SystemUnderTest.DividesByZero,
+                Returns.Any<int>(),
+                1000000);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ExpectedResultException<string>))]
+        public void Run3()
+        {
+            EntroTestRunner.Run(
+                EntroBuilder.Create<ParameterlessCtorTuple<string>>()
+                            .Property(c => c.Item1, Any.ValueIn(null, "a", "ab", "abc", "abcd", "abc ", "abcd efg", "abcd abc ", " ")),
+                SystemUnderTest.ParsesWord,
+                Returns.Any<string>(),
+                1000000);
+        }
     }
 
-    class Container
+    class ParameterlessCtorTuple<T1>
     {
-        public int Value1 { get; set; }
-        public int Value2 { get; set; }
+        public T1 Item1 { get; set; }
     }
+    class ParameterlessCtorTuple<T1, T2>
+    {
+        public T1 Item1 { get; set; }
+        public T2 Item2 { get; set; }
+    }
+    class ParameterlessCtorTuple<T1, T2, T3>
+    {
+        public T1 Item1 { get; set; }
+        public T2 Item2 { get; set; }
+        public T3 Item3 { get; set; }
+    }
+
     class SystemUnderTest
     {
-        public static bool HaveAFailingBranch(Container container)
+        public static bool HaveAFailingBranch(ParameterlessCtorTuple<int, int> argument)
         {
             // User would code this function to do something useful
             // But might forget a branch:
-            if (container.Value1 == -1 && container.Value2 == 19)
+            if (argument.Item1 == -1 && argument.Item2 == 19)
             {
                 // We want to detect this case, by random chance
                 return false;
             }
             return true;
+        }
+
+        public static int DividesByZero(ParameterlessCtorTuple<int, int> argument)
+        {
+            int result = argument.Item1 / argument.Item2;
+            return result;
+        }
+
+        public static string ParsesWord(ParameterlessCtorTuple<string> argument)
+        {
+            string firstWord = argument.Item1.Split(' ')[0];
+            return firstWord;
         }
     }
 }

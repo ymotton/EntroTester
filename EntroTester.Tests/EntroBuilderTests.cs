@@ -25,21 +25,21 @@ namespace EntroTester.Tests
         {
             var builder = EntroBuilder
                 .Create<Root>()
-                .ForProperty(a => a.String_ValueIn, Any.ValueIn(PossibleStrings))
-                .ForProperty(a => a.Integer_ValueIn, Any.ValueIn(PossibleIntegers))
-                .ForProperty(a => a.Integer_ValueBetween, Any.ValueBetween(MinInteger, MaxInteger))
-                .ForProperty(a => a.Double_ValueIn, Any.ValueIn(PossibleDoubles))
-                .ForProperty(a => a.Double_ValueBetween, Any.ValueBetween(MinDouble, MaxDouble))
-                .ForProperty(a => a.Decimal_ValueIn, Any.ValueIn(PossibleDecimals))
-                .ForProperty(a => a.Decimal_ValueBetween, Any.ValueBetween(MinDecimal, MaxDecimal))
-                .ForProperty(a => a.RootChild.String_ValueIn, Any.ValueIn(PossibleStrings))
-                .ForProperty(a => a.RootChild.Integer_ValueIn, Any.ValueIn(PossibleIntegers))
-                .ForProperty(a => a.RootChild.Integer_ValueBetween, Any.ValueBetween(MinInteger, MaxInteger))
-                .ForProperty(a => a.RootChild.Double_ValueIn, Any.ValueIn(PossibleDoubles))
-                .ForProperty(a => a.RootChild.Double_ValueBetween, Any.ValueBetween(MinDouble, MaxDouble))
-                .ForProperty(a => a.RootChild.Decimal_ValueIn, Any.ValueIn(PossibleDecimals))
-                .ForProperty(a => a.RootChild.Decimal_ValueBetween, Any.ValueBetween(MinDecimal, MaxDecimal))
-                .ForProperty(a => a.RootChild.NestedChild.String_ValueIn, Any.ValueIn(PossibleStrings));
+                .Property(a => a.String_ValueIn, Any.ValueIn(PossibleStrings))
+                .Property(a => a.Integer_ValueIn, Any.ValueIn(PossibleIntegers))
+                .Property(a => a.Integer_ValueBetween, Any.ValueBetween(MinInteger, MaxInteger))
+                .Property(a => a.Double_ValueIn, Any.ValueIn(PossibleDoubles))
+                .Property(a => a.Double_ValueBetween, Any.ValueBetween(MinDouble, MaxDouble))
+                .Property(a => a.Decimal_ValueIn, Any.ValueIn(PossibleDecimals))
+                .Property(a => a.Decimal_ValueBetween, Any.ValueBetween(MinDecimal, MaxDecimal))
+                .Property(a => a.RootChild.String_ValueIn, Any.ValueIn(PossibleStrings))
+                .Property(a => a.RootChild.Integer_ValueIn, Any.ValueIn(PossibleIntegers))
+                .Property(a => a.RootChild.Integer_ValueBetween, Any.ValueBetween(MinInteger, MaxInteger))
+                .Property(a => a.RootChild.Double_ValueIn, Any.ValueIn(PossibleDoubles))
+                .Property(a => a.RootChild.Double_ValueBetween, Any.ValueBetween(MinDouble, MaxDouble))
+                .Property(a => a.RootChild.Decimal_ValueIn, Any.ValueIn(PossibleDecimals))
+                .Property(a => a.RootChild.Decimal_ValueBetween, Any.ValueBetween(MinDecimal, MaxDecimal))
+                .Property(a => a.RootChild.NestedChild.String_ValueIn, Any.ValueIn(PossibleStrings));
 
             _roots = builder.Take(100000).ToList();
         }

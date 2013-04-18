@@ -40,13 +40,19 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Any.cs" />
+    <Compile Include="AssertionException.cs" />
     <Compile Include="EntroBuilder.cs" />
     <Compile Include="EntroTestRunner.cs" />
+    <Compile Include="ExceptionResult.cs" />
+    <Compile Include="ExpectedResult.cs" />
+    <Compile Include="ExpectedResultException.cs" />
     <Compile Include="RangeGenerator.cs" />
+    <Compile Include="Returns.cs" />
     <Compile Include="SequenceGenerator.cs" />
     <Compile Include="IGenerator.cs" />
     <Compile Include="Is.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TypedResult.cs" />
     <Compile Include="TypeExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
