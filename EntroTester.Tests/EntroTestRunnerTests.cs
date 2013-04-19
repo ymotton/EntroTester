@@ -48,15 +48,15 @@ namespace EntroTester.Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ExpectedResultException<string>))]
+        [ExpectedException(typeof(AssertionException))]
         public void Run3()
         {
             EntroTestRunner.Run(
                 EntroBuilder.Create<ParameterlessCtorTuple<string>>()
-                            .Property(c => c.Item1, Any.ValueIn(null, "a", "ab", "abc", "abcd", "abc ", "abcd efg", "abcd abc ", " ")),
+                            .Property(c => c.Item1, Any.ValueLike(@"(( |\t){1,2}[a-zA-Z0-9]{1,2}){1,2}")),
                 SystemUnderTest.ParsesWord,
-                Returns.Any<string>(),
-                1000000);
+                r => r != null && r.Length > 0,
+                10000);
         }
     }
 

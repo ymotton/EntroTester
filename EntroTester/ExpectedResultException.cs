@@ -2,6 +2,7 @@ using System;
 
 namespace EntroTester
 {
+    [Serializable]
     public class ExpectedResultException<T> : Exception
     {
         public ExpectedResultException(ExpectedResult<T> expectedResult, int seed, int iteration)

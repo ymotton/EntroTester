@@ -7,7 +7,11 @@ namespace EntroTester
             var generator = new SequenceGenerator<T>(possibleValues);
             return generator;
         }
-
+        public static IGenerator<string> ValueLike(string regularExpression)
+        {
+            var generator = new RegexGenerator(regularExpression);
+            return generator;
+        }
         public static IGenerator<int> ValueBetween(int minValue, int maxValue)
         {
             var generator = new IntegerRangeGenerator(minValue, maxValue);

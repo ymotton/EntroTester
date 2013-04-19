@@ -3,6 +3,7 @@ using System.Linq.Expressions;
 
 namespace EntroTester
 {
+    [Serializable]
     public class AssertionException : Exception
     {
         public AssertionException(Expression assertionExpression, int seed, int iteration)
