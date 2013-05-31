@@ -91,7 +91,7 @@ namespace EntroTester
                         value = BuildImpl(propertyType, tryBuildScalar);
                     }
 
-                    property.SetValue(instance, value);
+                    property.SetValue(instance, value, new object[0]);
                 }
             }
 
@@ -99,7 +99,7 @@ namespace EntroTester
         }
         object BuildCollectionImpl(Type propertyType, TryGet<PropertyInfo, object> tryBuildScalar)
         {
-            Type itemType = propertyType.GenericTypeArguments.Single();
+            Type itemType = propertyType.GetGenericArguments().Single();
             Type collectionType;
             if (propertyType.IsInterface)
             {
@@ -120,7 +120,7 @@ namespace EntroTester
 
             if (propertyType.IsGenericType && propertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
             {
-                propertyType = propertyType.GenericTypeArguments.Single();
+                propertyType = propertyType.GetGenericArguments().Single();
                 if (_random.Next(0, 2) == 1)
                 {
                     result = null;
