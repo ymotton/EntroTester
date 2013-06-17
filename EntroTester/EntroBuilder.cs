@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Text;
 
 namespace EntroTester
 {
@@ -19,11 +20,11 @@ namespace EntroTester
             _random = new Random(seed ?? Seed);
         }
 
-        readonly Dictionary<PropertyInfo, IGenerator> _possibleValueSelectors = new Dictionary<PropertyInfo, IGenerator>();
+        readonly Dictionary<string, IGenerator> _possibleValueSelectors = new Dictionary<string, IGenerator>();
         public EntroBuilder<T> Property<TProperty>(Expression<Func<T, TProperty>> propertyExpression, IGenerator<TProperty> generator)
         {
-            var propertyInfo = propertyExpression.GetPropertyInfo();
-            _possibleValueSelectors[propertyInfo] = generator;
+            var path = propertyExpression.GetPropertyPath();
+            _possibleValueSelectors[path] = generator;
             return this;
         }
         public EntroBuilder<T> Property<TProperty>(Expression<Func<T, TProperty>> propertyExpression, IEnumerable<TProperty> sequence)
@@ -32,10 +33,21 @@ namespace EntroTester
             return result;
         }
 
-        public T Build(TryGet<PropertyInfo, object> tryBuildScalar = null)
+        public EntroBuilder<T> Property<TProperty>(Expression<Func<T, IEnumerable<TProperty>>> propertyExpression, IGenerator<TProperty> generator)
         {
-            tryBuildScalar = tryBuildScalar ?? TryBuildRandomValueImpl;
-            var item = BuildImpl(tryBuildScalar);
+            var path = propertyExpression.GetPropertyPath();
+            _possibleValueSelectors[path] = generator;
+            return this;
+        }
+        public EntroBuilder<T> Property<TProperty>(Expression<Func<T, IEnumerable<TProperty>>> propertyExpression, IEnumerable<TProperty> sequence)
+        {
+            var result = Property(propertyExpression, new SequenceGenerator<TProperty>(sequence));
+            return result;
+        }
+
+        public T Build()
+        {
+            var item = BuildImpl();
             return item;
         }
         public IEnumerable<T> Take(int count)
@@ -52,11 +64,12 @@ namespace EntroTester
             }
         }
 
-        T BuildImpl(TryGet<PropertyInfo, object> tryBuildScalar)
+        T BuildImpl()
         {
-            return (T)BuildImpl(typeof(T), tryBuildScalar);
+            var context = new TypeContext(typeof(T));
+            return (T)BuildImpl(context, typeof(T));
         }
-        object BuildImpl(Type type, TryGet<PropertyInfo, object> tryBuildScalar)
+        object BuildImpl(TypeContext context, Type type)
         {
             object instance = Activator.CreateInstance(type);
 
@@ -65,21 +78,22 @@ namespace EntroTester
             {
                 object value;
 
+                var propertyContext = context.AddProperty(property);
                 var propertyType = property.PropertyType;
                 if (property.GetSetMethod(true) != null)
                 {
                     IGenerator generator;
-                    if (_possibleValueSelectors.TryGetValue(property, out generator))
+                    if (_possibleValueSelectors.TryGetValue(propertyContext.ToString(), out generator))
                     {
                         value = generator.Next(_random);
                     }
                     else if (propertyType.IsScalar())
                     {
-                        tryBuildScalar(property, out value);
+                        TryBuildRandomValueImpl(property, out value);
                     }
                     else if (propertyType.IsSequence())
                     {
-                        value = BuildCollectionImpl(propertyType, tryBuildScalar);
+                        value = BuildCollectionImpl(propertyContext, propertyType);
                     }
                     else if (propertyType.IsArray)
                     {
@@ -88,7 +102,7 @@ namespace EntroTester
                     }
                     else
                     {
-                        value = BuildImpl(propertyType, tryBuildScalar);
+                        value = BuildImpl(propertyContext, propertyType);
                     }
 
                     property.SetValue(instance, value, new object[0]);
@@ -97,7 +111,7 @@ namespace EntroTester
 
             return instance;
         }
-        object BuildCollectionImpl(Type propertyType, TryGet<PropertyInfo, object> tryBuildScalar)
+        object BuildCollectionImpl(TypeContext context, Type propertyType)
         {
             Type itemType = propertyType.GetGenericArguments().Single();
             Type collectionType;
@@ -110,7 +124,7 @@ namespace EntroTester
                 collectionType = propertyType;
             }
             var instance = (IList)Activator.CreateInstance(collectionType);
-            var item = BuildImpl(itemType, tryBuildScalar);
+            var item = BuildImpl(context, itemType);
             instance.Add(item);
             return instance;
         }
@@ -172,6 +186,37 @@ namespace EntroTester
 
             return true;
         }
+
+        class TypeContext
+        {
+            readonly string _baseType;
+            readonly List<string> _members;
+            public TypeContext(Type type)
+            {
+                _baseType = type.Name;
+                _members = new List<string>();
+            }
+            private TypeContext(TypeContext context, PropertyInfo propertyInfo)
+            {
+                _baseType = context._baseType;
+                _members = new List<string>(context._members);
+                _members.Add(propertyInfo.Name);
+            }
+            public TypeContext AddProperty(PropertyInfo propertyInfo)
+            {
+                return new TypeContext(this, propertyInfo);
+            }
+            public override string ToString()
+            {
+                var sb = new StringBuilder();
+                sb.Append(_baseType);
+                foreach (var member in _members)
+                {
+                    sb.AppendFormat(".{0}", member);
+                }
+                return sb.ToString();
+            }
+        }
     }
 
     public static class EntroBuilder
@@ -187,14 +232,9 @@ namespace EntroTester
             var instance = new EntroBuilder<T>().Build();
             return instance;
         }
-        public static T Build<T>(TryGet<PropertyInfo, object> tryBuildScalar) where T : class, new()
+        public static T Build<T>(int seed) where T : class, new()
         {
-            var instance = new EntroBuilder<T>().Build(tryBuildScalar);
-            return instance;
-        }
-        public static T Build<T>(int seed, TryGet<PropertyInfo, object> tryBuildScalar) where T : class, new()
-        {
-            var instance = new EntroBuilder<T>(seed).Build(tryBuildScalar);
+            var instance = new EntroBuilder<T>(seed).Build();
             return instance;
         }
     }

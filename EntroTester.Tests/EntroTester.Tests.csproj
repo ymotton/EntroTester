@@ -54,6 +54,7 @@
     <Compile Include="EntroBuilderTests.cs" />
     <Compile Include="EntroTestRunnerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SequenceGeneratorTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EntroTester\EntroTester.csproj">

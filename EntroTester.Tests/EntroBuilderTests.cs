@@ -44,7 +44,18 @@ namespace EntroTester.Tests
                 .Property(a => a.RootChild.Double_ValueBetween, Any.ValueBetween(MinDouble, MaxDouble))
                 .Property(a => a.RootChild.Decimal_ValueIn, Any.ValueIn(PossibleDecimals))
                 .Property(a => a.RootChild.Decimal_ValueBetween, Any.ValueBetween(MinDecimal, MaxDecimal))
-                .Property(a => a.RootChild.NestedChild.String_ValueIn, Any.ValueIn(PossibleStrings));
+                .Property(a => a.RootChild.NestedChild.String_ValueIn, Any.ValueIn(PossibleStrings))
+                .Property(a => a.RootChild_Other.Integer_ValueIn, Is.Value(1))
+                .Property(a => a.RootChild_Other.Integer_ValueBetween, Is.Value(1))
+                .Property(a => a.RootChild_Other.String_ValueIn, Is.Value("Fixed"))
+                .Property(a => a.RootChild_Other.Decimal_ValueIn, Is.Value(1M))
+                .Property(a => a.RootChild_Other.Decimal_ValueBetween, Is.Value(1M))
+                .Property(a => a.RootChild_Other.Double_ValueIn, Is.Value(1D))
+                .Property(a => a.RootChild_Other.Double_ValueBetween, Is.Value(1D))
+                .Property(a => a.RootChild_Other.NestedChild.String_ValueIn, Is.Value("Fixed"))
+                .Property(a => a.Items.Select(i => i.Integer_ValueIn), Any.ValueIn(PossibleIntegers))
+                .Property(a => a.Items.Select(i => i.String_ValueLike), Any.ValueLike(IBANPattern))
+                .Property(a => a.Items.Select(i => i.Decimal_ValueBetween), Any.ValueBetween(MinDecimal, MaxDecimal));
 
             _roots = builder.Take(100000).ToList();
         }
@@ -177,10 +188,42 @@ namespace EntroTester.Tests
         }
 
         [TestMethod]
-        public void Build_ProducesRootChildren_ContainsOneElement()
+        public void Build_ProducesOtherRootChild_WithExpectedFixedValues()
         {
-            Assert.IsTrue(_roots.All(i => i.RootChildren != null));
-            Assert.IsTrue(_roots.All(i => i.RootChildren.Any()));
+            Assert.IsTrue(_roots.Select(r => r.RootChild_Other.Integer_ValueIn).All(i => i == 1));
+            Assert.IsTrue(_roots.Select(r => r.RootChild_Other.Integer_ValueBetween).All(i => i == 1));
+            Assert.IsTrue(_roots.Select(r => r.RootChild_Other.Decimal_ValueIn).All(i => i == 1M));
+            Assert.IsTrue(_roots.Select(r => r.RootChild_Other.Decimal_ValueBetween).All(i => i == 1M));
+            Assert.IsTrue(_roots.Select(r => r.RootChild_Other.Double_ValueIn).All(i => i == 1.0));
+            Assert.IsTrue(_roots.Select(r => r.RootChild_Other.Double_ValueBetween).All(i => i == 1.0));
+            Assert.IsTrue(_roots.Select(r => r.RootChild_Other.String_ValueIn).All(i => i == "Fixed"));
+            Assert.IsTrue(_roots.Select(r => r.RootChild_Other.NestedChild.String_ValueIn).All(i => i == "Fixed"));
+        }
+
+        [TestMethod]
+        public void Build_ProducesItems_ContainsOneElement()
+        {
+            Assert.IsTrue(_roots.All(i => i.Items != null));
+            Assert.IsTrue(_roots.All(i => i.Items.Any()));
+        }
+
+        [TestMethod]
+        public void Build_ProducesItems_WithStringLikeRegex()
+        {
+            var regex = new Regex(IBANPattern);
+            Assert.IsTrue(_roots.All(i => i.Items.All(li => regex.IsMatch(li.String_ValueLike))));
+        }
+
+        [TestMethod]
+        public void Build_ProducesItems_WithAllExpectedIntegers()
+        {
+            Assert.IsTrue(_roots.All(i => i.Items.All(li => PossibleIntegers.Contains(li.Integer_ValueIn))));
+        }
+
+        [TestMethod]
+        public void Build_ProducesItems_WithOnlyDecimalsInRange()
+        {
+            Assert.IsTrue(_roots.All(i => i.Items.All(li => li.Decimal_ValueBetween >= MinDecimal && li.Decimal_ValueBetween <= MaxDecimal)));
         }
 
         [TestMethod]
@@ -245,8 +288,11 @@ namespace EntroTester.Tests
         // Drill into Non-Scalars, to recursively generate
         public RootChild RootChild { get; set; }
 
+        // Differentiate between children of the same type
+        public RootChild RootChild_Other { get; set; }
+
         // Drill into collections, and add one element by default
-        public List<RootChild> RootChildren { get; set; }
+        public List<ListItem> Items { get; set; }
     }
 
     class RootChild
@@ -270,5 +316,16 @@ namespace EntroTester.Tests
     class NestedChild
     {
         public string String_ValueIn { get; set; }
+    }
+
+    class ListItem
+    {
+        public int Integer_ValueIn { get; set; }
+
+        public string String_ValueLike { get; set; }
+
+        public decimal Decimal_ValueBetween { get; set; }
+
+        public List<NestedChild> NestedChildren { get; set; }
     }
 }
