@@ -8,8 +8,6 @@ using System.Text;
 
 namespace EntroTester
 {
-    public delegate bool TryGet<in TParam, TOutput>(TParam param, out TOutput output);
-
     public class EntroBuilder<T>  where T : class, new()
     {
         const int Seed = 0x1;
@@ -85,7 +83,14 @@ namespace EntroTester
                     IGenerator generator;
                     if (_possibleValueSelectors.TryGetValue(propertyContext.ToString(), out generator))
                     {
-                        value = generator.Next(_random);
+                        if (propertyType.IsSequence())
+                        {
+                            value = BuildCollectionForGeneratorImpl(propertyType, generator);
+                        }
+                        else
+                        {
+                            value = generator.Next(_random);
+                        }
                     }
                     else if (propertyType.IsScalar())
                     {
@@ -113,19 +118,45 @@ namespace EntroTester
         }
         object BuildCollectionImpl(TypeContext context, Type propertyType)
         {
-            Type itemType = propertyType.GetGenericArguments().Single();
+            Type elementType = propertyType.GetGenericArguments().Single();
             Type collectionType;
             if (propertyType.IsInterface)
             {
-                collectionType = typeof(List<>).MakeGenericType(itemType);
+                collectionType = typeof(List<>).MakeGenericType(elementType);
             }
             else
             {
                 collectionType = propertyType;
             }
             var instance = (IList)Activator.CreateInstance(collectionType);
-            var item = BuildImpl(context, itemType);
+            var item = BuildImpl(context, elementType);
             instance.Add(item);
+            return instance;
+        }
+        object BuildCollectionForGeneratorImpl(Type propertyType, IGenerator generator)
+        {
+            object instance;
+
+            var elementType = propertyType.GetGenericArguments().Single();
+            var generatorType = generator.GetType();
+            var interfaceGeneratorType = typeof(IGenerator<>).MakeGenericType(typeof(List<>).MakeGenericType(elementType));
+            if (generatorType.ImplementsInterface(interfaceGeneratorType))
+            {
+                var sequence = generator.Next(_random);
+                if (sequence.GetType() != propertyType)
+                {
+                    instance = Activator.CreateInstance(propertyType, sequence);
+                }
+                else
+                {
+                    instance = sequence;
+                }
+            }
+            else
+            {
+                throw new NotSupportedException();
+            }
+
             return instance;
         }
         bool TryBuildRandomValueImpl(PropertyInfo property, out object result)
@@ -224,6 +255,11 @@ namespace EntroTester
         public static EntroBuilder<T> Create<T>() where T : class, new()
         {
             var builder = new EntroBuilder<T>();
+            return builder;
+        }
+        public static EntroBuilder<T> Create<T>(int seed) where T : class, new()
+        {
+            var builder = new EntroBuilder<T>(seed);
             return builder;
         }
 

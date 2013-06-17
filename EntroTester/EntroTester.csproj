@@ -47,6 +47,7 @@
   <ItemGroup>
     <Compile Include="Any.cs" />
     <Compile Include="AssertionException.cs" />
+    <Compile Include="CollectionGenerator.cs" />
     <Compile Include="EntroBuilder.cs" />
     <Compile Include="EntroTestRunner.cs" />
     <Compile Include="ExceptionResult.cs" />

@@ -9,6 +9,10 @@ namespace EntroTester
 {
     internal static class TypeExtensions
     {
+        public static bool ImplementsInterface(this Type type, Type interfaceType)
+        {
+            return type.GetInterfaces().Any(@interface => @interface == interfaceType);
+        }
         public static bool ImplementsGenericInterface(this Type type, Type interfaceType)
         {
             return type.IsGenericType
@@ -20,7 +24,6 @@ namespace EntroTester
         {
             return type.IsValueType || type == typeof(string);
         }
-
         public static bool IsSequence(this Type type)
         {
             bool isSequence = type.ImplementsGenericInterface(typeof(IEnumerable<>));
@@ -32,6 +35,16 @@ namespace EntroTester
             var memberExpression = (MemberExpression)((LambdaExpression)propertyExpression).Body;
             var propertyInfo = (PropertyInfo)memberExpression.Member;
             return propertyInfo;
+        }
+        public static string GetPropertyPath<T, TProperty>(this Expression<Func<T, TProperty>> propertyExpression)
+        {
+            var memberExpression = (MemberExpression)((LambdaExpression)propertyExpression).Body;
+            var path = memberExpression.ToString();
+            int firstDotOffset = path.IndexOf('.');
+            if (firstDotOffset == -1)
+                return path;
+            path = path.Substring(firstDotOffset);
+            return typeof(T).Name + path;
         }
 
         readonly static MethodInfo SelectMethodInfo = typeof(Enumerable).GetMethods(BindingFlags.Static | BindingFlags.Public).First(m => m.Name == "Select");
@@ -47,36 +60,42 @@ namespace EntroTester
             }
             return null;
         }
-
-        public static string GetPropertyPath<T, TProperty>(this Expression<Func<T, TProperty>> propertyExpression)
-        {
-            var memberExpression = (MemberExpression)((LambdaExpression)propertyExpression).Body;
-            var path = memberExpression.ToString();
-            int firstDotOffset = path.IndexOf('.');
-            if (firstDotOffset == -1)
-                return path;
-            path = path.Substring(firstDotOffset);
-            return typeof(T).Name + path;
-        }
         public static string GetPropertyPath<T, TProperty>(this Expression<Func<T, IEnumerable<TProperty>>> propertyExpression)
         {
-            var methodCallExpression = (MethodCallExpression)((LambdaExpression)propertyExpression).Body;
-            if (methodCallExpression.Method.GetGenericMethodDefinition() != SelectMethodInfo)
+            var lambdaBodyExpression = ((LambdaExpression)propertyExpression).Body;
+
+            string path;
+
+            var memberExpression = lambdaBodyExpression as MemberExpression;
+            if (memberExpression != null)
             {
-                var message = string.Format("Unspported Method '{0}' in expression", methodCallExpression.Method);
-                throw new InvalidOperationException(message);
+                path = memberExpression.ToString();
+                int firstDotOffset = path.IndexOf('.');
+                if (firstDotOffset == -1)
+                    return path;
+                path = path.Substring(firstDotOffset);
             }
-            var path = methodCallExpression.ToString();
-            int firstDotOffset = path.IndexOf('.');
-            if (firstDotOffset == -1)
-                return path;
-            path = path.Substring(firstDotOffset);
-            var methodsToRemove = new Regex(@"Select\(\w+ \=\> \w+\.").Matches(path).OfType<Match>().Select(ma => ma.Value).ToList();
-            foreach (var method in methodsToRemove)
+            else
             {
-                path = path.Replace(method, "");
+                var methodCallExpression = (MethodCallExpression)lambdaBodyExpression;
+                if (methodCallExpression.Method.GetGenericMethodDefinition() != SelectMethodInfo)
+                {
+                    var message = string.Format("Unspported Method '{0}' in expression", methodCallExpression.Method);
+                    throw new InvalidOperationException(message);
+                }
+                path = methodCallExpression.ToString();
+                int firstDotOffset = path.IndexOf('.');
+                if (firstDotOffset == -1)
+                    return path;
+                path = path.Substring(firstDotOffset);
+                var methodsToRemove = new Regex(@"Select\(\w+ \=\> \w+\.").Matches(path).OfType<Match>().Select(ma => ma.Value).ToList();
+                foreach (var method in methodsToRemove)
+                {
+                    path = path.Replace(method, "");
+                }
+                path = path.Replace(")", "");
             }
-            path = path.Replace(")", "");
+            
             return typeof(T).Name + path;
         }
     }

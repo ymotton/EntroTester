@@ -55,9 +55,26 @@ namespace EntroTester.Tests
                 .Property(a => a.RootChild_Other.NestedChild.String_ValueIn, Is.Value("Fixed"))
                 .Property(a => a.Items.Select(i => i.Integer_ValueIn), Any.ValueIn(PossibleIntegers))
                 .Property(a => a.Items.Select(i => i.String_ValueLike), Any.ValueLike(IBANPattern))
-                .Property(a => a.Items.Select(i => i.Decimal_ValueBetween), Any.ValueBetween(MinDecimal, MaxDecimal));
+                .Property(a => a.Items.Select(i => i.Decimal_ValueBetween), Any.ValueBetween(MinDecimal, MaxDecimal))
+                .Property(a => a.People, new CollectionGenerator<Person>(
+                    () =>
+                        {
+                            var people = EntroBuilder.Create<Person>()
+                                                .Property(p => p.Country, Is.Value("Belgium"))
+                                                .Take(2)
+                                    .Concat(EntroBuilder.Create<Person>()
+                                                .Property(p => p.Country, Is.Value("France"))
+                                                .Take(2))
+                                    .Concat(EntroBuilder.Create<Person>()
+                                                .Property(p => p.Country, Is.Value("Germany"))
+                                                .Take(2))
+                                    .Concat(EntroBuilder.Create<Person>()
+                                                .Property(p => p.Country, Is.Value("United Kingdom"))
+                                                .Take(2));
+                            return people;
+                        }));
 
-            _roots = builder.Take(100000).ToList();
+            _roots = builder.Take(10000).ToList();
         }
 
         [TestMethod]
@@ -251,6 +268,15 @@ namespace EntroTester.Tests
             var regex = new Regex(IBANPattern);
             Assert.IsTrue(_roots.All(r => regex.IsMatch(r.String_FromPattern)));
         }
+
+        [TestMethod]
+        public void Build_ProducesPeople_WithExpectedComposition()
+        {
+            Assert.IsTrue(_roots.All(r => r.People.Count(p => p.Country == "Belgium") == 2));
+            Assert.IsTrue(_roots.All(r => r.People.Count(p => p.Country == "France") == 2));
+            Assert.IsTrue(_roots.All(r => r.People.Count(p => p.Country == "Germany") == 2));
+            Assert.IsTrue(_roots.All(r => r.People.Count(p => p.Country == "United Kingdom") == 2));
+        }
     }
 
     class Root
@@ -293,6 +319,15 @@ namespace EntroTester.Tests
 
         // Drill into collections, and add one element by default
         public List<ListItem> Items { get; set; }
+
+        // Drill into collections given a delegate generator to influence the composition of the collection
+        public List<Person> People { get; set; }
+    }
+
+    class Person
+    {
+        public string Name { get; set; }
+        public string Country { get; set; }
     }
 
     class RootChild
