@@ -30,7 +30,6 @@ namespace EntroTester
             var result = Property(propertyExpression, new SequenceGenerator<TProperty>(sequence));
             return result;
         }
-
         public EntroBuilder<T> Property<TProperty>(Expression<Func<T, IEnumerable<TProperty>>> propertyExpression, IGenerator<TProperty> generator)
         {
             var path = propertyExpression.GetPropertyPath();
@@ -83,13 +82,22 @@ namespace EntroTester
                     IGenerator generator;
                     if (_possibleValueSelectors.TryGetValue(propertyContext.ToString(), out generator))
                     {
-                        if (propertyType.IsSequence())
+                        // If the generator returns a T[] and the property takes a T[]
+                        var generatorType = generator.GetType();
+                        var isGeneric = generatorType.ImplementsGenericInterface(typeof(IGenerator<>));
+                        if (!isGeneric)
                         {
-                            value = BuildCollectionForGeneratorImpl(propertyType, generator);
+                            // If it's a typeless generator, try to match the returnvalue with property
+                            // This will produce a runtime error, if it cannot be matched
+                            value = generator.Next(_random);
+                        }
+                        else if (propertyType.IsAssignableFrom(generatorType.GetGenericArguments()[0]))
+                        {
+                            value = generator.Next(_random);
                         }
                         else
                         {
-                            value = generator.Next(_random);
+                            value = BuildCollectionForGeneratorImpl(propertyType, generator);
                         }
                     }
                     else if (propertyType.IsScalar())
@@ -139,7 +147,7 @@ namespace EntroTester
 
             var elementType = propertyType.GetGenericArguments().Single();
             var generatorType = generator.GetType();
-            var interfaceGeneratorType = typeof(IGenerator<>).MakeGenericType(typeof(List<>).MakeGenericType(elementType));
+            var interfaceGeneratorType = typeof(IGenerator<>).MakeGenericType(typeof(IEnumerable<>).MakeGenericType(elementType));
             if (generatorType.ImplementsInterface(interfaceGeneratorType))
             {
                 var sequence = generator.Next(_random);

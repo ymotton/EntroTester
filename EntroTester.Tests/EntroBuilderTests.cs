@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -23,6 +24,23 @@ namespace EntroTester.Tests
         const decimal MaxDecimal = decimal.MaxValue / 2;
         const string IBANPattern = "([A-Z]{2}[0-9]{2})( [0-9]{4}){3,6}";
 
+        static IEnumerable<Person> CreatePeople()
+        {
+            var people = EntroBuilder.Create<Person>()
+                                        .Property(p => p.Country, Is.Value("Belgium"))
+                                        .Take(2)
+                .Concat(EntroBuilder.Create<Person>()
+                                        .Property(p => p.Country, Is.Value("France"))
+                                        .Take(2))
+                .Concat(EntroBuilder.Create<Person>()
+                                        .Property(p => p.Country, Is.Value("Germany"))
+                                        .Take(2))
+                .Concat(EntroBuilder.Create<Person>()
+                                        .Property(p => p.Country, Is.Value("United Kingdom"))
+                                        .Take(2));
+            return people;
+        }
+            
         [ClassInitialize]
         public static void ClassInitialize(TestContext context)
         {
@@ -56,23 +74,12 @@ namespace EntroTester.Tests
                 .Property(a => a.Items.Select(i => i.Integer_ValueIn), Any.ValueIn(PossibleIntegers))
                 .Property(a => a.Items.Select(i => i.String_ValueLike), Any.ValueLike(IBANPattern))
                 .Property(a => a.Items.Select(i => i.Decimal_ValueBetween), Any.ValueBetween(MinDecimal, MaxDecimal))
-                .Property(a => a.People, new CollectionGenerator<Person>(
-                    () =>
-                        {
-                            var people = EntroBuilder.Create<Person>()
-                                                .Property(p => p.Country, Is.Value("Belgium"))
-                                                .Take(2)
-                                    .Concat(EntroBuilder.Create<Person>()
-                                                .Property(p => p.Country, Is.Value("France"))
-                                                .Take(2))
-                                    .Concat(EntroBuilder.Create<Person>()
-                                                .Property(p => p.Country, Is.Value("Germany"))
-                                                .Take(2))
-                                    .Concat(EntroBuilder.Create<Person>()
-                                                .Property(p => p.Country, Is.Value("United Kingdom"))
-                                                .Take(2));
-                            return people;
-                        }));
+                .Property(a => a.People, CustomGenerator.Create(() => CreatePeople().ToList()))
+                .Property(a => a.Array, CustomGenerator.Create(() => CreatePeople().ToArray()))
+                .Property(a => a.IList, CustomGenerator.Create(() => CreatePeople().ToList()))
+                .Property(a => a.ICollection, CustomGenerator.Create(() => CreatePeople().ToList()))
+                .Property(a => a.IEnumerable, CustomGenerator.Create(() => CreatePeople().ToList()))
+                .Property(a => a.BindingList, CustomGenerator.Create(() => new BindingList<Person>(CreatePeople().ToList())));
 
             _roots = builder.Take(10000).ToList();
         }
@@ -277,6 +284,51 @@ namespace EntroTester.Tests
             Assert.IsTrue(_roots.All(r => r.People.Count(p => p.Country == "Germany") == 2));
             Assert.IsTrue(_roots.All(r => r.People.Count(p => p.Country == "United Kingdom") == 2));
         }
+
+        [TestMethod]
+        public void Build_ProducesIList_WithExpectedComposition()
+        {
+            Assert.IsTrue(_roots.All(r => r.IList.Count(p => p.Country == "Belgium") == 2));
+            Assert.IsTrue(_roots.All(r => r.IList.Count(p => p.Country == "France") == 2));
+            Assert.IsTrue(_roots.All(r => r.IList.Count(p => p.Country == "Germany") == 2));
+            Assert.IsTrue(_roots.All(r => r.IList.Count(p => p.Country == "United Kingdom") == 2));
+        }
+
+        [TestMethod]
+        public void Build_ProducesIEnumerable_WithExpectedComposition()
+        {
+            Assert.IsTrue(_roots.All(r => r.IEnumerable.Count(p => p.Country == "Belgium") == 2));
+            Assert.IsTrue(_roots.All(r => r.IEnumerable.Count(p => p.Country == "France") == 2));
+            Assert.IsTrue(_roots.All(r => r.IEnumerable.Count(p => p.Country == "Germany") == 2));
+            Assert.IsTrue(_roots.All(r => r.IEnumerable.Count(p => p.Country == "United Kingdom") == 2));
+        }
+
+        [TestMethod]
+        public void Build_ProducesICollection_WithExpectedComposition()
+        {
+            Assert.IsTrue(_roots.All(r => r.ICollection.Count(p => p.Country == "Belgium") == 2));
+            Assert.IsTrue(_roots.All(r => r.ICollection.Count(p => p.Country == "France") == 2));
+            Assert.IsTrue(_roots.All(r => r.ICollection.Count(p => p.Country == "Germany") == 2));
+            Assert.IsTrue(_roots.All(r => r.ICollection.Count(p => p.Country == "United Kingdom") == 2));
+        }
+
+        [TestMethod]
+        public void Build_ProducesBindingList_WithExpectedComposition()
+        {
+            Assert.IsTrue(_roots.All(r => r.BindingList.Count(p => p.Country == "Belgium") == 2));
+            Assert.IsTrue(_roots.All(r => r.BindingList.Count(p => p.Country == "France") == 2));
+            Assert.IsTrue(_roots.All(r => r.BindingList.Count(p => p.Country == "Germany") == 2));
+            Assert.IsTrue(_roots.All(r => r.BindingList.Count(p => p.Country == "United Kingdom") == 2));
+        }
+
+        [TestMethod]
+        public void Build_ProducesArray_WithExpectedComposition()
+        {
+            Assert.IsTrue(_roots.All(r => r.Array.Count(p => p.Country == "Belgium") == 2));
+            Assert.IsTrue(_roots.All(r => r.Array.Count(p => p.Country == "France") == 2));
+            Assert.IsTrue(_roots.All(r => r.Array.Count(p => p.Country == "Germany") == 2));
+            Assert.IsTrue(_roots.All(r => r.Array.Count(p => p.Country == "United Kingdom") == 2));
+        }
     }
 
     class Root
@@ -322,6 +374,11 @@ namespace EntroTester.Tests
 
         // Drill into collections given a delegate generator to influence the composition of the collection
         public List<Person> People { get; set; }
+        public Person[] Array { get; set; }
+        public IList<Person> IList { get; set; }
+        public BindingList<Person> BindingList { get; set; }
+        public ICollection<Person> ICollection { get; set; }
+        public IEnumerable<Person> IEnumerable { get; set; }
     }
 
     class Person

@@ -36,31 +36,8 @@ namespace EntroTester
             var propertyInfo = (PropertyInfo)memberExpression.Member;
             return propertyInfo;
         }
-        public static string GetPropertyPath<T, TProperty>(this Expression<Func<T, TProperty>> propertyExpression)
-        {
-            var memberExpression = (MemberExpression)((LambdaExpression)propertyExpression).Body;
-            var path = memberExpression.ToString();
-            int firstDotOffset = path.IndexOf('.');
-            if (firstDotOffset == -1)
-                return path;
-            path = path.Substring(firstDotOffset);
-            return typeof(T).Name + path;
-        }
-
         readonly static MethodInfo SelectMethodInfo = typeof(Enumerable).GetMethods(BindingFlags.Static | BindingFlags.Public).First(m => m.Name == "Select");
-        public static PropertyInfo GetPropertyInfo<T, TProperty>(this Expression<Func<T, IEnumerable<TProperty>>> propertyExpression)
-        {
-            var methodCallExpression = (MethodCallExpression)((LambdaExpression)propertyExpression).Body;
-            if (methodCallExpression.Method.GetGenericMethodDefinition() == SelectMethodInfo)
-            {
-                var lambdaExpression = (LambdaExpression)methodCallExpression.Arguments[1];
-                var memberExpression = (MemberExpression)lambdaExpression.Body;
-                var propertyInfo = (PropertyInfo)memberExpression.Member;
-                return propertyInfo;
-            }
-            return null;
-        }
-        public static string GetPropertyPath<T, TProperty>(this Expression<Func<T, IEnumerable<TProperty>>> propertyExpression)
+        public static string GetPropertyPath<T, TProperty>(this Expression<Func<T, TProperty>> propertyExpression)
         {
             var lambdaBodyExpression = ((LambdaExpression)propertyExpression).Body;
 
