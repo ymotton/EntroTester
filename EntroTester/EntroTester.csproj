@@ -67,6 +67,7 @@
   <ItemGroup>
     <None Include="EntroTester.nuspec" />
     <None Include="packages.config" />
+    <None Include="PublishToMyget.cmd" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

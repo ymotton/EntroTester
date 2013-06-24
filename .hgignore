@@ -6,3 +6,5 @@
 .*\.user
 .*nupkg*
 .*packages/.*
+syntax: glob
+EntroTester/PublishToMyget.bat

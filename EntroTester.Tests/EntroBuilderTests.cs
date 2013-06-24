@@ -40,7 +40,8 @@ namespace EntroTester.Tests
                                         .Take(2));
             return people;
         }
-            
+        static int _cachedGeneratorCallCount;
+
         [ClassInitialize]
         public static void ClassInitialize(TestContext context)
         {
@@ -79,7 +80,13 @@ namespace EntroTester.Tests
                 .Property(a => a.IList, CustomGenerator.Create(() => CreatePeople().ToList()))
                 .Property(a => a.ICollection, CustomGenerator.Create(() => CreatePeople().ToList()))
                 .Property(a => a.IEnumerable, CustomGenerator.Create(() => CreatePeople().ToList()))
-                .Property(a => a.BindingList, CustomGenerator.Create(() => new BindingList<Person>(CreatePeople().ToList())));
+                .Property(a => a.BindingList, CustomGenerator.Create(() => new BindingList<Person>(CreatePeople().ToList())))
+                .Property(a => a.CachedPerson, CustomGenerator.Create(() =>
+                                                                          {
+                                                                              _cachedGeneratorCallCount++;
+                                                                              return new Person();
+                                                                          }, 
+                                                                          DelegateGeneratorOptions.Cached));
 
             _roots = builder.Take(10000).ToList();
         }
@@ -329,6 +336,12 @@ namespace EntroTester.Tests
             Assert.IsTrue(_roots.All(r => r.Array.Count(p => p.Country == "Germany") == 2));
             Assert.IsTrue(_roots.All(r => r.Array.Count(p => p.Country == "United Kingdom") == 2));
         }
+
+        [TestMethod]
+        public void Build_CachedCustomerGenerator_IsCalledOnce()
+        {
+            Assert.AreEqual(1, _cachedGeneratorCallCount);
+        }
     }
 
     class Root
@@ -379,6 +392,9 @@ namespace EntroTester.Tests
         public BindingList<Person> BindingList { get; set; }
         public ICollection<Person> ICollection { get; set; }
         public IEnumerable<Person> IEnumerable { get; set; }
+
+        // Allows to cache a custom generator, so it doesn't need to be called each time
+        public Person CachedPerson { get; set; }
     }
 
     class Person

@@ -21,7 +21,7 @@ namespace EntroTester
             _generatorDelegate = () =>
             {
                 // If we're not supposed to cache, just clear it every time, so it gets recreated.
-                if (options == DelegateGeneratorOptions.None)
+                if (_cachedSequence == null || options == DelegateGeneratorOptions.None)
                 {
                     _cachedSequence = new Maybe<T>();
                 }
