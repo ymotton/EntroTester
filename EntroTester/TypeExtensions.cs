@@ -37,6 +37,7 @@ namespace EntroTester
             return propertyInfo;
         }
         readonly static MethodInfo SelectMethodInfo = typeof(Enumerable).GetMethods(BindingFlags.Static | BindingFlags.Public).First(m => m.Name == "Select");
+        readonly static MethodInfo SelectManyMethodInfo = typeof(Enumerable).GetMethods(BindingFlags.Static | BindingFlags.Public).First(m => m.Name == "SelectMany");
         public static string GetPropertyPath<T, TProperty>(this Expression<Func<T, TProperty>> propertyExpression)
         {
             var lambdaBodyExpression = ((LambdaExpression)propertyExpression).Body;
@@ -54,22 +55,35 @@ namespace EntroTester
             }
             else
             {
+                // Only accept Select at the end of the expression
+                // SelectMany would not make much sense
                 var methodCallExpression = (MethodCallExpression)lambdaBodyExpression;
                 if (methodCallExpression.Method.GetGenericMethodDefinition() != SelectMethodInfo)
                 {
-                    var message = string.Format("Unspported Method '{0}' in expression", methodCallExpression.Method);
+                    var message = string.Format("Unsupported Method '{0}' in expression", methodCallExpression.Method);
                     throw new InvalidOperationException(message);
                 }
+                
+                // Truncate first section
                 path = methodCallExpression.ToString();
                 int firstDotOffset = path.IndexOf('.');
                 if (firstDotOffset == -1)
                     return path;
                 path = path.Substring(firstDotOffset);
+
+                // Removes all 'Select(x => x' sections
                 var methodsToRemove = new Regex(@"Select\(\w+ \=\> \w+\.").Matches(path).OfType<Match>().Select(ma => ma.Value).ToList();
                 foreach (var method in methodsToRemove)
                 {
                     path = path.Replace(method, "");
                 }
+                // Removes all 'SelectMany(x => x.' sections
+                methodsToRemove = new Regex(@"SelectMany\(\w+ \=\> \w+\.").Matches(path).OfType<Match>().Select(ma => ma.Value).ToList();
+                foreach (var method in methodsToRemove)
+                {
+                    path = path.Replace(method, "");
+                }
+                // Removes all ending paranthesis
                 path = path.Replace(")", "");
             }
             

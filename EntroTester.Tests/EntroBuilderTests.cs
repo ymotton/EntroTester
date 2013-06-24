@@ -23,6 +23,7 @@ namespace EntroTester.Tests
         const decimal MinDecimal = decimal.MinValue / 2;
         const decimal MaxDecimal = decimal.MaxValue / 2;
         const string IBANPattern = "([A-Z]{2}[0-9]{2})( [0-9]{4}){3,6}";
+        const string StudentName = "Oliver Twist";
 
         static IEnumerable<Person> CreatePeople()
         {
@@ -86,7 +87,8 @@ namespace EntroTester.Tests
                                                                               _cachedGeneratorCallCount++;
                                                                               return new Person();
                                                                           }, 
-                                                                          DelegateGeneratorOptions.Cached));
+                                                                          DelegateGeneratorOptions.Cached))
+                .Property(a => a.Schools.SelectMany(s => s.Classes).SelectMany(c => c.Students).Select(s => s.Name), Is.Value(StudentName));
 
             _roots = builder.Take(10000).ToList();
         }
@@ -338,9 +340,15 @@ namespace EntroTester.Tests
         }
 
         [TestMethod]
-        public void Build_CachedCustomerGenerator_IsCalledOnce()
+        public void Build_CachedCustomGenerator_IsCalledOnce()
         {
             Assert.AreEqual(1, _cachedGeneratorCallCount);
+        }
+
+        [TestMethod]
+        public void Build_ProducesStudents_WithExpectedName()
+        {
+            Assert.IsTrue(_roots.All(r => r.Schools.SelectMany(s => s.Classes).SelectMany(c => c.Students).All(p => p.Name == StudentName)));
         }
     }
 
@@ -393,8 +401,21 @@ namespace EntroTester.Tests
         public ICollection<Person> ICollection { get; set; }
         public IEnumerable<Person> IEnumerable { get; set; }
 
+        // Drill into nested collections
+        public List<School> Schools { get; set; }
+
         // Allows to cache a custom generator, so it doesn't need to be called each time
         public Person CachedPerson { get; set; }
+    }
+
+    class School
+    {
+        public List<Class> Classes { get; set; }
+    }
+    
+    class Class
+    {
+        public List<Person> Students { get; set; }
     }
 
     class Person
