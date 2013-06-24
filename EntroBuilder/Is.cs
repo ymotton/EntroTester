@@ -1,4 +1,4 @@
-namespace EntroTester
+namespace EntroBuilder
 {
     public static class Is
     {

@@ -1,7 +1,7 @@
 using System;
 using Fare;
 
-namespace EntroTester
+namespace EntroBuilder
 {
     /// <summary>
     /// See https://github.com/moodmosaic/Fare

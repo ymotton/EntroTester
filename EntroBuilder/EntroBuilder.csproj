@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{C2074150-D327-4997-8D7E-69CB9A90F488}</ProjectGuid>
+    <ProjectGuid>{B3BABA79-9872-4C86-8357-DF6FA046B987}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>EntroTester</RootNamespace>
-    <AssemblyName>EntroTester</AssemblyName>
+    <RootNamespace>EntroBuilder</RootNamespace>
+    <AssemblyName>EntroBuilder</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
@@ -33,11 +33,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="EntroBuilder">
-      <HintPath>..\packages\EntroBuilder.1.0.2\lib\net40\EntroBuilder.dll</HintPath>
-    </Reference>
-    <Reference Include="Fare, Version=1.0.4857.16365, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="Fare">
       <HintPath>..\packages\Fare.1.0.0\lib\net35\Fare.dll</HintPath>
     </Reference>
     <Reference Include="System" />
@@ -45,25 +41,45 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AssertionException.cs" />
-    <Compile Include="EntroTestRunner.cs" />
-    <Compile Include="ExceptionResult.cs" />
-    <Compile Include="ExpectedResult.cs" />
-    <Compile Include="ExpectedResultException.cs" />
-    <Compile Include="Returns.cs" />
+    <Compile Include="Any.cs" />
+    <Compile Include="EntroBuilder.cs" />
+    <Compile Include="Generators\BoolGenerator.cs" />
+    <Compile Include="Generators\ByteGenerator.cs" />
+    <Compile Include="Generators\CustomGenerator.cs" />
+    <Compile Include="Generators\DateTimeGenerator.cs" />
+    <Compile Include="Generators\DecimalGenerator.cs" />
+    <Compile Include="Generators\DecimalRangeGenerator.cs" />
+    <Compile Include="Generators\DoubleGenerator.cs" />
+    <Compile Include="Generators\DoubleRangeGenerator.cs" />
+    <Compile Include="Generators\FloatGenerator.cs" />
+    <Compile Include="Generators\GuidGenerator.cs" />
+    <Compile Include="Generators\IGenerator.cs" />
+    <Compile Include="Generators\Int16Generator.cs" />
+    <Compile Include="Generators\Int32Generator.cs" />
+    <Compile Include="Generators\Int64Generator.cs" />
+    <Compile Include="Generators\IntegerRangeGenerator.cs" />
+    <Compile Include="Generators\NullableGenerator.cs" />
+    <Compile Include="Generators\RangeGenerator.cs" />
+    <Compile Include="Generators\RegexGenerator.cs" />
+    <Compile Include="Generators\SByteGenerator.cs" />
+    <Compile Include="Generators\ScalarGenerator.cs" />
+    <Compile Include="Generators\SequenceGenerator.cs" />
+    <Compile Include="Generators\StringGenerator.cs" />
+    <Compile Include="Is.cs" />
+    <Compile Include="Maybe.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TypedResult.cs" />
+    <Compile Include="TypeExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="EntroTester.nuspec" />
+    <None Include="EntroBuilder.nuspec" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <PropertyGroup>
     <PostBuildEvent>cd $(ProjectDir)
 nuget pack</PostBuildEvent>
   </PropertyGroup>
-  <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

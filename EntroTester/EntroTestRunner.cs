@@ -1,18 +1,19 @@
 ﻿using System;
 using System.Linq;
 using System.Linq.Expressions;
+using EntroBuilder;
 
 namespace EntroTester
 {
     public class EntroTestRunner
     {
-        public static void Run<T, TResult>(EntroBuilder<T> builder, Func<T, TResult> when, Expression<Func<TResult, bool>> assertionExpression, int count)
+        public static void Run<T, TResult>(Builder<T> builder, Func<T, TResult> when, Expression<Func<TResult, bool>> assertionExpression, int count)
             where T : class, new()
         {
             int seed = Environment.TickCount;
             Run(builder, when, assertionExpression, count, seed);
         }
-        public static void Run<T, TResult>(EntroBuilder<T> builder, Func<T, TResult> when, Expression<Func<TResult, bool>> assertionExpression, int count, int seed)
+        public static void Run<T, TResult>(Builder<T> builder, Func<T, TResult> when, Expression<Func<TResult, bool>> assertionExpression, int count, int seed)
             where T : class, new()
         {
             var assertion = assertionExpression.Compile();
@@ -29,13 +30,13 @@ namespace EntroTester
             }
         }
 
-        public static void Run<T, TResult, TExpected>(EntroBuilder<T> builder, Func<T, TResult> when, ExpectedResult<TExpected> expectedResult, int count)
+        public static void Run<T, TResult, TExpected>(Builder<T> builder, Func<T, TResult> when, ExpectedResult<TExpected> expectedResult, int count)
             where T : class, new()
         {
             int seed = Environment.TickCount;
             Run(builder, when, expectedResult, count, seed);
         }
-        public static void Run<T, TResult, TExpected>(EntroBuilder<T> builder, Func<T, TResult> when, ExpectedResult<TExpected> expectedResult, int count, int seed)
+        public static void Run<T, TResult, TExpected>(Builder<T> builder, Func<T, TResult> when, ExpectedResult<TExpected> expectedResult, int count, int seed)
             where T : class, new()
         {
             var items = builder.Take(count, seed);
@@ -63,7 +64,7 @@ namespace EntroTester
             }
         }
 
-        public static T Replay<T>(EntroBuilder<T> builder, int seed, int iteration)
+        public static T Replay<T>(Builder<T> builder, int seed, int iteration)
             where T : class, new()
         {
             var items = builder.Take(iteration + 1, seed);

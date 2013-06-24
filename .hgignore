@@ -8,3 +8,4 @@
 .*packages/.*
 syntax: glob
 EntroTester/PublishToMyget.bat
+EntroBuilder/PublishToMyget.bat

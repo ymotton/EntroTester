@@ -1,6 +1,6 @@
 using System;
 
-namespace EntroTester
+namespace EntroBuilder
 {
     public interface IGenerator<out T> : IGenerator
     {

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using EntroBuilder;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace EntroTester.Tests

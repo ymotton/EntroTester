@@ -1,14 +1,14 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>EntroTester</id>
-    <version>1.0.14</version>
-    <title>EntroTester</title>
+    <id>EntroBuilder</id>
+    <version>1.0.2</version>
+    <title>EntroBuilder</title>
     <authors>Yannick Motton</authors>
     <owners>Yannick Motton</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>Library to facilitate automated blackbox testing to discover unhandeled branches</description>
+    <description>Library to facilitate creation of object graphs for testing purposes</description>
     <copyright>Copyright 2013</copyright>
-    <tags>EntroTester Test</tags>
+    <tags>EntroBuilder Test</tags>
   </metadata>
 </package>

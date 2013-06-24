@@ -1,4 +1,5 @@
 ﻿using System;
+using EntroBuilder;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace EntroTester.Tests
@@ -11,7 +12,7 @@ namespace EntroTester.Tests
         public void Run()
         {
             EntroTestRunner.Run(
-                EntroBuilder.Create<ParameterlessCtorTuple<int, int>>()
+                Builder.Create<ParameterlessCtorTuple<int, int>>()
                             .Property(c => c.Item1, Any.ValueBetween(-100, 100))
                             .Property(c => c.Item2, Any.ValueBetween(-100, 100)), 
                 SystemUnderTest.HaveAFailingBranch,
@@ -24,7 +25,7 @@ namespace EntroTester.Tests
         {
             var faulty = 
                 EntroTestRunner.Replay(
-                    EntroBuilder.Create<ParameterlessCtorTuple<int, int>>()
+                    Builder.Create<ParameterlessCtorTuple<int, int>>()
                             .Property(c => c.Item1, Any.ValueBetween(-100, 100))
                             .Property(c => c.Item2, Any.ValueBetween(-100, 100)),
                     5889973,
@@ -39,7 +40,7 @@ namespace EntroTester.Tests
         public void Run2()
         {
             EntroTestRunner.Run(
-                EntroBuilder.Create<ParameterlessCtorTuple<int, int>>()
+                Builder.Create<ParameterlessCtorTuple<int, int>>()
                             .Property(c => c.Item1, Any.ValueBetween(-100, 100))
                             .Property(c => c.Item2, Any.ValueBetween(-100, 100)),
                 SystemUnderTest.DividesByZero,
@@ -52,7 +53,7 @@ namespace EntroTester.Tests
         public void Run3()
         {
             EntroTestRunner.Run(
-                EntroBuilder.Create<ParameterlessCtorTuple<string>>()
+                Builder.Create<ParameterlessCtorTuple<string>>()
                             .Property(c => c.Item1, Any.ValueLike(@"(( |\t){1,2}[a-zA-Z0-9]{1,2}){1,2}")),
                 SystemUnderTest.ParsesWord,
                 r => r != null && r.Length > 0,

@@ -57,6 +57,10 @@
     <Compile Include="SequenceGeneratorTests.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\EntroBuilder\EntroBuilder.csproj">
+      <Project>{b3baba79-9872-4c86-8357-df6fa046b987}</Project>
+      <Name>EntroBuilder</Name>
+    </ProjectReference>
     <ProjectReference Include="..\EntroTester\EntroTester.csproj">
       <Project>{c2074150-d327-4997-8d7e-69cb9a90f488}</Project>
       <Name>EntroTester</Name>

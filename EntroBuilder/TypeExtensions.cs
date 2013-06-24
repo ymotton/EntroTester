@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
-namespace EntroTester
+namespace EntroBuilder
 {
     internal static class TypeExtensions
     {
@@ -37,7 +37,6 @@ namespace EntroTester
             return propertyInfo;
         }
         readonly static MethodInfo SelectMethodInfo = typeof(Enumerable).GetMethods(BindingFlags.Static | BindingFlags.Public).First(m => m.Name == "Select");
-        readonly static MethodInfo SelectManyMethodInfo = typeof(Enumerable).GetMethods(BindingFlags.Static | BindingFlags.Public).First(m => m.Name == "SelectMany");
         public static string GetPropertyPath<T, TProperty>(this Expression<Func<T, TProperty>> propertyExpression)
         {
             var lambdaBodyExpression = ((LambdaExpression)propertyExpression).Body;

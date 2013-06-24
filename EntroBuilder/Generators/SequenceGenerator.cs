@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace EntroTester
+namespace EntroBuilder
 {
     public class SequenceGenerator<T> : IGenerator<T>
     {
