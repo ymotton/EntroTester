@@ -33,7 +33,7 @@ If you want the entire package.
 
 ## Concepts
 
-### IGenerator&lt;T&gt;
+### IGenerator\<T\>
 `EntroBuilder` relies on a concept called `IGenerator<T>`:
 
     interface IGenerator<T>
@@ -52,7 +52,7 @@ This interface is the core of the library, and any and all types are constructed
 - `RangeGenerator<T>` takes an upper and lower bound and produces random values between the two bounds. Implementations exist for most countable primitives.
 - `RegexGenerator` takes a regular expression and leverages [FARE](https://github.com/moodmosaic/Fare "FARE") to produce random strings that match the regex pattern.
 
-### Builder&lt;T&gt;
+### Builder\<T\>
 The Builder is a class that does the actual work of binding a Type to a `IGenerator<T>`. It equally offers a way to override the default generation strategy via `For()` and `Property()`:
 
 - `For<T>(IGenerator<T>)` allows to override the default generation strategy for given type. All instances of given type will be generated using this generator.
@@ -61,7 +61,7 @@ The Builder is a class that does the actual work of binding a Type to a `IGenera
 
 ## Usage
 
-### IGenerator&lt;T&gt;
+### IGenerator\<T\>
 The factory class `Any` allows to easily produce instances of the aforementioned generators. Following methods are available:
 
     Any.ValueIn<T>(params T[]) // Produces a SequenceGenerator<T>
@@ -75,7 +75,7 @@ The factory class `Is` allows to produce a generator for a static instance.
 *TODO: Elaborate on `CustomGenerator<T>`*
 
 
-### Builder&lt;T&gt;
+### Builder\<T\>
 #### Creating an instance
 
 Every instance of test data can be constructed using the Builder Factory method:
