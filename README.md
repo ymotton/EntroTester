@@ -33,6 +33,7 @@ If you want the entire package.
 
 ## Concepts
 
+### `IGenerator<T>`
 `EntroBuilder` relies on a concept called `IGenerator<T>`:
 
     interface IGenerator<T>
@@ -40,36 +41,81 @@ If you want the entire package.
         T Next(Random random);
     }
 
-Similar to `IEnumerator<T>`, `IGenerator<T>` also produces a sequence of `Ts`, be it that the latter is considered to be an infinite sequence. Some `IGenerator<T>` implementations use a finite collection to produce values, however when the internal sequence has reached the end, it wraps around, and starts from the beginning.
+Similar to `IEnumerator<T>`, `IGenerator<T>` produces a sequence of `Ts`, be it that the latter is considered to be an infinite sequence. Some `IGenerator<T>` implementations use a finite collection to produce values, however when the internal sequence has reached the end, it wraps around, and starts from the beginning.
 
 This interface is the core of the library, and any and all types are constructed in this fashion.
+
+`EntroBuilder` offers a number of different generators:
+
+- `ScalarGenerator<T>` is a base type for all the primitive generators. There are *type generators* for most primitives as well as some complex types: `bool`, `byte`, `DateTime`, `decimal`, `double`, `float`, `Guid`, `short`, `int`, `long`, `string` as well as their `Nullable<T>` counterparts.
+- `SequenceGenerator<T>` takes an `IEnumerable<T>` and produces uniformly distributed random values from the sequence. The issue with `IEnumerable<T>` is that it can represent an infinite sequence, and since we want to produce uniformly distributed values, we need to determine whether it's a finite or infinite sequence. 
+- `RangeGenerator<T>` takes an upper and lower bound and produces random values between the two bounds. Implementations exist for most countable primitives.
+- `RegexGenerator` takes a regular expression and leverages [FARE](https://github.com/moodmosaic/Fare "FARE") to produce random strings that match the regex pattern.
+
+### `Builder<T>`
+The Builder is a class that does the actual work of binding a Type to a `IGenerator<T>`. It equally offers a way to override the default generation strategy via `For()` and `Property()`:
+
+- `For<T>(IGenerator<T>)` allows to override the default generation strategy for given type. All instances of given type will be generated using this generator.
+- `Property<TProperty>(Expression<Func<T, TProperty>>, IGenerator<TProperty>)` allows to override the generation strategy for a specific property within the object graph.
 
 
 ## Usage
 
+### Generators
+
+The factory class `Any` allows to easily produce instances of the aforementioned generators. Following methods are available:
+
+    Any.ValueIn<T>(params T[]) // Produces a SequenceGenerator<T>
+    Any.ValueBetween(int, int) // Produces a RangeGenerator<int>
+    Any.ValueLike(string)      // Produces a RegexGenerator
+
+The factory class `Is` allows to produce a generator for a static instance.
+
+    Is.Value<T>(T)             // Produces a SequenceGenerator<T> with one element.
+
+*TODO: Elaborate on `CustomGenerator<T>`*
+
+
+### `Builder<T>`
+
+#### Creating an instance
+
 Every instance of test data can be constructed using the Builder Factory method:
 
-    var builder = Builder.Create<Order>();
+    var builder = Builder.Create<int>();
 
-The former statement creates an instance of `Builder<T>` that is configured using default *type generators* that construct scalar types.
+The builder can produce instances of `int` by either calling `Build()`, either `Take(int)`.
 
-There are *type generators* for most primitives as well as some complex types: `bool`, `byte`, `DateTime`, `decimal`, `double`, `float`, `Guid`, `short`, `int`, `long`, `string` as well as their `Nullable` counterparts.
+    var myInteger = builder.Build();   // Produces an Integer instance
+    var myIntegers = builder.Take(10); // Produces 10 Integer instances
 
-Any unsupported types can be registered on the builder instance using the `For()` method.  e.g.:
+#### Overriding default generation strategy
 
-    var builder = Builder.Create<Order>()
-                         .For<ushort>(new MyUShortGenerator());
+The following creates an `Order` for which all properties of type `int` will have a value between `0` and `10`.
 
-This also allows to override default generation strategies for built-in types.
+    var order = Builder.Create<Order>()
+                       .For<int>(Any.ValueBetween(0, 10))
+                       .Build();
 
-The real power of EntroBuilder comes from being able to define the possible values for properties on non-scalars throughout an object graph.
+#### Overriding generation strategy for specific property
 
-	var builder = Builder.Create<Order>()
-                         .Property(o => o.Customer.FullName.FirstName, Any.ValueIn("John", "Bob", "Will"))
-                         .Property(o => o.Customer.FullName.LastName, Any.ValueIn("Appleseed", "Builder", "Shakespear");
+The following creates a `Customer` for which the `FirstName` will either be John, Bob or Will, and the `LastName` will either be Appleseed, Builder or Shakespear.
 
-`Any.ValueIn` is a factory that returns a `Generator<T>` where T is a string, in this example.
+	var order = Builder.Create<Order>()
+                       .Property(
+                           o => o.Customer.FullName.FirstName, 
+                           Any.ValueIn("John", "Bob", "Will"))
+                       .Property(
+                           o => o.Customer.FullName.LastName,
+                           Any.ValueIn("Appleseed", "Builder", "Shakespear"))
+                       .Build();
 
-    var builder = Builder.Create<Order>()
-                         .Property(o => o.OrderLines.Select(ol => ol.Amount, Any.ValueBetween(0.01M, 1.99M));
+The following creates an `Order` for which the `OrderLines` will have an Amount between 0.01 and 1.99.
+    
+    var order = Builder.Create<Order>()
+                       .Property(
+                           o => o.OrderLines.Select(ol => ol.Amount),
+                           Any.ValueBetween(0.01M, 1.99M))
+                       .Build();
 
+*TODO: Elaborate*
