@@ -33,9 +33,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="EntroBuilder">
-      <HintPath>..\packages\EntroBuilder.1.0.2\lib\net40\EntroBuilder.dll</HintPath>
-    </Reference>
     <Reference Include="Fare, Version=1.0.4857.16365, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Fare.1.0.0\lib\net35\Fare.dll</HintPath>
