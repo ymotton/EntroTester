@@ -28,17 +28,17 @@ namespace EntroBuilder
             For(new Int32Generator());
             For(new Int64Generator());
             For(new SByteGenerator());
-            For(new NullableGenerator<bool>(new BoolGenerator()));
-            For(new NullableGenerator<byte>(new ByteGenerator()));
-            For(new NullableGenerator<DateTime>(new DateTimeGenerator()));
-            For(new NullableGenerator<decimal>(new DecimalGenerator()));
-            For(new NullableGenerator<double>(new DoubleGenerator()));
-            For(new NullableGenerator<float>(new FloatGenerator()));
-            For(new NullableGenerator<Guid>(new GuidGenerator()));
-            For(new NullableGenerator<short>(new Int16Generator()));
-            For(new NullableGenerator<int>(new Int32Generator()));
-            For(new NullableGenerator<long>(new Int64Generator()));
-            For(new NullableGenerator<sbyte>(new SByteGenerator()));
+            For(NullableGenerator.Create(new BoolGenerator()));
+            For(NullableGenerator.Create(new ByteGenerator()));
+            For(NullableGenerator.Create(new DateTimeGenerator()));
+            For(NullableGenerator.Create(new DecimalGenerator()));
+            For(NullableGenerator.Create(new DoubleGenerator()));
+            For(NullableGenerator.Create(new FloatGenerator()));
+            For(NullableGenerator.Create(new GuidGenerator()));
+            For(NullableGenerator.Create(new Int16Generator()));
+            For(NullableGenerator.Create(new Int32Generator()));
+            For(NullableGenerator.Create(new Int64Generator()));
+            For(NullableGenerator.Create(new SByteGenerator()));
             For(new StringGenerator());
         }
 
@@ -127,7 +127,7 @@ namespace EntroBuilder
             {
                 return null;
             }
-            else
+            else if (type.IsClass)
             {
                 instance = Activator.CreateInstance(type);
 
@@ -142,6 +142,10 @@ namespace EntroBuilder
 
                     property.SetValue(instance, value, new object[0]);
                 }
+            }
+            else
+            {
+                throw new NotSupportedException();
             }
 
             return instance;
