@@ -229,23 +229,23 @@ namespace EntroBuilder
 
     public static class Builder
     {
-        public static Builder<T> Create<T>() where T : class, new()
+        public static Builder<T> Create<T>() 
         {
             var builder = new Builder<T>();
             return builder;
         }
-        public static Builder<T> Create<T>(int seed) where T : class, new()
+        public static Builder<T> Create<T>(int seed) 
         {
             var builder = new Builder<T>(seed);
             return builder;
         }
 
-        public static T Build<T>() where T : class, new()
+        public static T Build<T>() 
         {
             var instance = new Builder<T>().Build();
             return instance;
         }
-        public static T Build<T>(int seed) where T : class, new()
+        public static T Build<T>(int seed) 
         {
             var instance = new Builder<T>(seed).Build();
             return instance;

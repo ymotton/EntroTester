@@ -238,6 +238,56 @@ namespace EntroTester.Tests
         {
             Assert.IsTrue(_roots.All(r => r.Schools.SelectMany(s => s.Classes).SelectMany(c => c.Students).All(p => p.Name == StudentName)));
         }
+
+        [TestMethod]
+        public void Build_ProducesInt_WithDifferentValues()
+        {
+            var values = Builder.Create<int>().Take(1000);
+
+            bool producesDifferentValues = values.GroupBy(i => i).Count() > 100;
+
+            Assert.IsTrue(producesDifferentValues);
+        }
+
+        [TestMethod]
+        public void Build_ProducesString_WithDifferentValues()
+        {
+            var values = Builder.Create<string>().Take(1000);
+
+            bool producesDifferentValues = values.GroupBy(i => i).Count() > 100;
+
+            Assert.IsTrue(producesDifferentValues);
+        }
+
+        [TestMethod]
+        public void Build_ProducesString_WithExpectedValues()
+        {
+            var values = Builder.Create<string>()
+                                .For(Any.ValueIn(PossibleStrings))
+                                .Take(1000);
+
+            var distinctValues = values.Distinct().ToList();
+            var distinctValueCount = distinctValues.Count();
+            Assert.AreEqual(PossibleStrings.Length, distinctValueCount);
+            Assert.IsTrue(PossibleStrings.Contains(distinctValues[0]));
+            Assert.IsTrue(PossibleStrings.Contains(distinctValues[1]));
+            Assert.IsTrue(PossibleStrings.Contains(distinctValues[2]));
+        }
+
+        [TestMethod]
+        public void Build_ProducesInt_WithExpectedValues()
+        {
+            var values = Builder.Create<int>()
+                                .For(Any.ValueIn(PossibleIntegers))
+                                .Take(1000);
+
+            var distinctValues = values.Distinct().ToList();
+            var distinctValueCount = distinctValues.Count();
+            Assert.AreEqual(PossibleIntegers.Length, distinctValueCount);
+            Assert.IsTrue(PossibleIntegers.Contains(distinctValues[0]));
+            Assert.IsTrue(PossibleIntegers.Contains(distinctValues[1]));
+            Assert.IsTrue(PossibleIntegers.Contains(distinctValues[2]));
+        }
     }
 
     class Root

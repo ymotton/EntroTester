@@ -35,7 +35,7 @@
   <ItemGroup>
     <Reference Include="EntroBuilder, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\EntroBuilder.1.0.3\lib\net40\EntroBuilder.dll</HintPath>
+      <HintPath>..\packages\EntroBuilder.1.0.4\lib\net40\EntroBuilder.dll</HintPath>
     </Reference>
     <Reference Include="Fare, Version=1.0.4857.16365, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
