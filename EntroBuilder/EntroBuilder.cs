@@ -147,7 +147,15 @@ namespace EntroBuilder
             {
                 instance = Activator.CreateInstance(type);
 
-                var fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
+                BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+                // In case the value type is nullable, don't reflect over its private members
+                // We only want to set its Value field.
+                if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+                {
+                    bindingFlags = BindingFlags.Public | BindingFlags.Instance;
+                }
+
+                var fields = type.GetFields(bindingFlags);
                 foreach (var field in fields)
                 {
                     var typeContext = context.AddField(field);

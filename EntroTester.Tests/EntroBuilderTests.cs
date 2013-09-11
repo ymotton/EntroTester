@@ -254,6 +254,18 @@ namespace EntroTester.Tests
         }
 
         [TestMethod]
+        public void Build_ProducesComplexTypeWithPrivateMember_WithExpectedValues()
+        {
+            Assert.IsTrue(_roots.All(r => r.ComplexType.ComplexTypeWithPrivateMember.ToString() != null));
+        }
+
+        [TestMethod]
+        public void Build_ProducesComplexTypeWithPrivateReadonlyMember_WithExpectedValues()
+        {
+            Assert.IsTrue(_roots.All(r => r.ComplexType.ComplexTypeWithPrivateReadOnlyMember.ToString() != null));
+        }
+
+        [TestMethod]
         public void Build_CachedCustomGenerator_IsCalledOnce()
         {
             Assert.AreEqual(1, _cachedGeneratorCallCount);
@@ -404,12 +416,32 @@ namespace EntroTester.Tests
     {
         public string String;
         public int Integer;
-        // And even nested structs
+        // Nested structs
         public NestedComplexType NestedComplexType;
+        // Structs with private members
+        public ComplexTypeWithPrivateMember ComplexTypeWithPrivateMember;
+        // Structs with private readonly members
+        public ComplexTypeWithPrivateReadOnlyMember ComplexTypeWithPrivateReadOnlyMember;
     }
     struct NestedComplexType
     {
         public string String;
         public DateTime DateTime;
+    }
+    struct ComplexTypeWithPrivateMember
+    {
+        private string String;
+        public override string ToString()
+        {
+            return String;
+        }
+    }
+    struct ComplexTypeWithPrivateReadOnlyMember
+    {
+        private readonly string String;
+        public override string ToString()
+        {
+            return String;
+        }
     }
 }
