@@ -266,6 +266,21 @@ namespace EntroTester.Tests
         }
 
         [TestMethod]
+        public void Build_ProducesMyEnum_WithExpectedValue()
+        {
+            Assert.IsTrue(_roots.All(r => Enum.GetValues(typeof(MyEnum)).Cast<int>().Contains((int)r.MyEnum)));
+        }
+
+        [TestMethod]
+        public void Build_ProducesNullableMyEnum_WithExpectedValue()
+        {
+            Assert.IsTrue(_roots.Any(r => !r.NullableMyEnum.HasValue));
+            Assert.IsTrue(_roots.Any(r => r.NullableMyEnum.HasValue));
+
+            Assert.IsTrue(_roots.All(r => !r.NullableMyEnum.HasValue || Enum.GetValues(typeof(MyEnum)).Cast<int>().Contains((int)r.NullableMyEnum.Value)));
+        }
+
+        [TestMethod]
         public void Build_CachedCustomGenerator_IsCalledOnce()
         {
             Assert.AreEqual(1, _cachedGeneratorCallCount);
@@ -382,6 +397,12 @@ namespace EntroTester.Tests
 
         // Support for Nullable structs
         public ComplexType? NullableComplexType { get; set; }
+
+        // Support for enums
+        public MyEnum MyEnum { get; set; }
+
+        // Support for nullable enums
+        public MyEnum? NullableMyEnum { get; set; }
     }
 
     class School
@@ -443,5 +464,11 @@ namespace EntroTester.Tests
         {
             return String;
         }
+    }
+    enum MyEnum
+    {
+        One = 1,
+        Two = 2,
+        Max = int.MaxValue
     }
 }

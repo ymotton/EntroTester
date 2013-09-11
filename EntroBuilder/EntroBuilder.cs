@@ -45,7 +45,11 @@ namespace EntroBuilder
         readonly Dictionary<Type, IGenerator> _typeGenerators = new Dictionary<Type, IGenerator>();
         public Builder<T> For<TType>(IGenerator<TType> generator)
         {
-            _typeGenerators[typeof(TType)] = generator;
+            return For(typeof(TType), generator);
+        }
+        public Builder<T> For(Type type, IGenerator generator)
+        {
+            _typeGenerators[type] = generator;
             return this;
         }
 
@@ -143,27 +147,38 @@ namespace EntroBuilder
                     property.SetValue(instance, value, new object[0]);
                 }
             }
+            else if (type.IsEnum)
+            {
+                var sequenceGeneratorType = typeof(SequenceGenerator<>).MakeGenericType(type);
+                var rawPossibleValues = Enum.GetValues(type);
+                var possibleValues = typeof(Enumerable).GetMethod("Cast").MakeGenericMethod(type).Invoke(null, new object[] { rawPossibleValues });
+                generator = (IGenerator)Activator.CreateInstance(sequenceGeneratorType, possibleValues, 1000000);
+                For(type, generator);
+                instance = generator.Next(_random);
+            }
             else if (type.IsValueType)
             {
-                instance = Activator.CreateInstance(type);
-
-                BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
                 // In case the value type is nullable, don't reflect over its private members
                 // We only want to set its Value field.
                 if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
                 {
-                    bindingFlags = BindingFlags.Public | BindingFlags.Instance;
+                    var innerType = type.GetGenericArguments()[0];
+                    instance = _random.Next(0, 2) == 1 ? BuildImpl(context, innerType) : null;
                 }
-
-                var fields = type.GetFields(bindingFlags);
-                foreach (var field in fields)
+                else
                 {
-                    var typeContext = context.AddField(field);
-                    var fieldType = field.FieldType;
+                    instance = Activator.CreateInstance(type);
+                    
+                    var fields = type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                    foreach (var field in fields)
+                    {
+                        var typeContext = context.AddField(field);
+                        var fieldType = field.FieldType;
 
-                    object value = BuildImpl(typeContext, fieldType);
+                        object value = BuildImpl(typeContext, fieldType);
 
-                    field.SetValue(instance, value);
+                        field.SetValue(instance, value);
+                    }
                 }
             }
             else
