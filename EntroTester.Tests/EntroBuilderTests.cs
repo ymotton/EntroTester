@@ -95,6 +95,18 @@ namespace EntroTester.Tests
         }
 
         [TestMethod]
+        public void Build_ProducesRoot_WithNullableComplexTypeSometimesNull()
+        {
+            Assert.IsTrue(_roots.Any(i => i.Nullable_DateTime == null));
+        }
+
+        [TestMethod]
+        public void Build_ProducesRoot_WithNullableComplexTypeSometimesNonNull()
+        {
+            Assert.IsTrue(_roots.Any(i => i.Nullable_DateTime != null));
+        }
+
+        [TestMethod]
         public void Build_ProducesRoot_WithRandomString()
         {
             Assert.IsTrue(_roots.Select(r => r.String_RandomValue).All(s => !string.IsNullOrEmpty(s)));
@@ -228,6 +240,20 @@ namespace EntroTester.Tests
         }
 
         [TestMethod]
+        public void Build_ProducesComplexType_WithExpectedValues()
+        {
+            Assert.IsTrue(_roots.All(r => r.ComplexType.String != null));
+            Assert.IsTrue(_roots.Any(r => r.ComplexType.Integer != 0));
+        }
+
+        [TestMethod]
+        public void Build_ProducesNestedComplexType_WithExpectedValues()
+        {
+            Assert.IsTrue(_roots.All(r => r.ComplexType.NestedComplexType.String != null));
+            Assert.IsTrue(_roots.Any(r => r.ComplexType.NestedComplexType.DateTime != DateTime.MinValue));
+        }
+
+        [TestMethod]
         public void Build_CachedCustomGenerator_IsCalledOnce()
         {
             Assert.AreEqual(1, _cachedGeneratorCallCount);
@@ -338,6 +364,12 @@ namespace EntroTester.Tests
 
         // Differentiating between properties of the same type
         public Person OtherPerson { get; set; }
+
+        // Support for structs
+        public ComplexType ComplexType { get; set; }
+
+        // Support for Nullable structs
+        public ComplexType? NullableComplexType { get; set; }
     }
 
     class School
@@ -366,5 +398,18 @@ namespace EntroTester.Tests
         public int Integer_ValueBetween { get; set; }
         public double Double_ValueBetween { get; set; }
         public decimal Decimal_ValueBetween { get; set; }
+    }
+
+    struct ComplexType
+    {
+        public string String;
+        public int Integer;
+        // And even nested structs
+        public NestedComplexType NestedComplexType;
+    }
+    struct NestedComplexType
+    {
+        public string String;
+        public DateTime DateTime;
     }
 }

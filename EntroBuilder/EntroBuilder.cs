@@ -134,13 +134,28 @@ namespace EntroBuilder
                 var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
                 foreach (var property in properties)
                 {
-                    var propertyContext = context.AddProperty(property);
+                    var typeContext = context.AddProperty(property);
                     var propertyType = property.PropertyType;
                     if (property.GetSetMethod(true) == null) continue;
 
-                    object value = BuildImpl(propertyContext, propertyType);
+                    object value = BuildImpl(typeContext, propertyType);
 
                     property.SetValue(instance, value, new object[0]);
+                }
+            }
+            else if (type.IsValueType)
+            {
+                instance = Activator.CreateInstance(type);
+
+                var fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
+                foreach (var field in fields)
+                {
+                    var typeContext = context.AddField(field);
+                    var fieldType = field.FieldType;
+
+                    object value = BuildImpl(typeContext, fieldType);
+
+                    field.SetValue(instance, value);
                 }
             }
             else
@@ -210,9 +225,19 @@ namespace EntroBuilder
                 _members = new List<string>(context._members);
                 _members.Add(propertyInfo.Name);
             }
+            private TypeContext(TypeContext context, FieldInfo fieldInfo)
+            {
+                _baseType = context._baseType;
+                _members = new List<string>(context._members);
+                _members.Add(fieldInfo.Name);
+            }
             public TypeContext AddProperty(PropertyInfo propertyInfo)
             {
                 return new TypeContext(this, propertyInfo);
+            } 
+            public TypeContext AddField(FieldInfo fieldInfo)
+            {
+                return new TypeContext(this, fieldInfo);
             }
             public override string ToString()
             {
