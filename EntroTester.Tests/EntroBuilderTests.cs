@@ -341,6 +341,25 @@ namespace EntroTester.Tests
             Assert.IsTrue(PossibleIntegers.Contains(distinctValues[1]));
             Assert.IsTrue(PossibleIntegers.Contains(distinctValues[2]));
         }
+
+        [TestMethod]
+        public void Build_WithPrivateDefaultCtor_ProducesInstance()
+        {
+            var instance = Builder.Create<ClassWithPrivateDefaultCtor>()
+                                  .Build();
+
+            Assert.IsNotNull(instance);
+            Assert.IsInstanceOfType(instance, typeof(ClassWithPrivateDefaultCtor));
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(MissingMethodException))]
+        public void Build_WithNoDefaultCtor_ThrowsException()
+        {
+            Builder.Create<ClassWithNoDefaultCtor>().Build();
+            
+            Assert.Fail("This should fail.");
+        }
     }
 
     class Root
@@ -470,5 +489,13 @@ namespace EntroTester.Tests
         One = 1,
         Two = 2,
         Max = int.MaxValue
+    }
+    class ClassWithPrivateDefaultCtor
+    {
+        ClassWithPrivateDefaultCtor() { }
+    }
+    class ClassWithNoDefaultCtor
+    {
+        public ClassWithNoDefaultCtor(string required) { }
     }
 }

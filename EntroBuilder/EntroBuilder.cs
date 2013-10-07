@@ -133,7 +133,7 @@ namespace EntroBuilder
             }
             else if (type.IsClass)
             {
-                instance = Activator.CreateInstance(type);
+                instance = Activator.CreateInstance(type, true);
 
                 var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
                 foreach (var property in properties)
