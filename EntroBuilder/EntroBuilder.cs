@@ -135,16 +135,17 @@ namespace EntroBuilder
             {
                 instance = Activator.CreateInstance(type, true);
 
-                var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+                var properties = type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
                 foreach (var property in properties)
                 {
-                    var typeContext = context.AddProperty(property);
-                    var propertyType = property.PropertyType;
-                    if (property.GetSetMethod(true) == null) continue;
+                    var propertyOnDeclaringType = property.DeclaringType.GetProperty(property.Name);
+                    var typeContext = context.AddProperty(propertyOnDeclaringType);
+                    if (propertyOnDeclaringType.GetSetMethod(true) == null) continue;
 
+                    var propertyType = propertyOnDeclaringType.PropertyType;
                     object value = BuildImpl(typeContext, propertyType);
 
-                    property.SetValue(instance, value, new object[0]);
+                    propertyOnDeclaringType.SetValue(instance, value, new object[0]);
                 }
             }
             else if (type.IsEnum)

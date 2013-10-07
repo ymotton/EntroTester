@@ -360,6 +360,17 @@ namespace EntroTester.Tests
             
             Assert.Fail("This should fail.");
         }
+
+        [TestMethod]
+        public void Build_WithPrivatePropertySetterOnBase_ProducesValue()
+        {
+            var instance = Builder.Create<DerivedClassForBaseWithPrivatePropertySetter>()
+                                  .Build();
+
+            Assert.IsNotNull(instance);
+            Assert.IsInstanceOfType(instance, typeof(DerivedClassForBaseWithPrivatePropertySetter));
+            Assert.IsNotNull(instance.PropertyWithPrivateSetter);
+        }
     }
 
     class Root
@@ -497,5 +508,12 @@ namespace EntroTester.Tests
     class ClassWithNoDefaultCtor
     {
         public ClassWithNoDefaultCtor(string required) { }
+    }
+    class BaseClassWithPrivatePropertySetter
+    {
+        public string PropertyWithPrivateSetter { get; private set; }
+    }
+    class DerivedClassForBaseWithPrivatePropertySetter : BaseClassWithPrivatePropertySetter
+    {
     }
 }
