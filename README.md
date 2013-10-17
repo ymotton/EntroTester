@@ -17,11 +17,9 @@ The idea is that `EntroTester` provides a random seed to `EntroBuilder` to verif
 
 ## Installation
 
-The packages `EntroBuilder`, `EntroTester` and their dependency `FARE` are currently hosted on the following feed: [http://www.myget.org/F/entrotester/](http://www.myget.org/F/entrotester/)
+The packages [`EntroBuilder`](https://www.nuget.org/packages/EntroBuilder/), [`EntroTester`](https://www.nuget.org/packages/EntroTester/) and their dependency [`FARE`](https://www.nuget.org/packages/Fare/) are hosted in the NuGet Gallery. 
 
-Add it to your NuGet package sources as explained in the [myget docs](http://docs.myget.org/docs/how-to/register-myget-feeds-in-visual-studio "myget docs").
-
-Then install either package from the package manager console. (EntroTester automatically includes EntroBuilder)
+To install the packages from the package manager console. (EntroTester automatically includes EntroBuilder)
 
     Install-Package EntroBuilder
 
