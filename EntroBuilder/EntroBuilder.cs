@@ -27,6 +27,9 @@ namespace EntroBuilder
             For(new Int16Generator());
             For(new Int32Generator());
             For(new Int64Generator());
+            For(new UInt16Generator());
+            For(new UInt32Generator());
+            For(new UInt64Generator());
             For(new SByteGenerator());
             For(NullableGenerator.Create(new BoolGenerator()));
             For(NullableGenerator.Create(new ByteGenerator()));
@@ -38,6 +41,9 @@ namespace EntroBuilder
             For(NullableGenerator.Create(new Int16Generator()));
             For(NullableGenerator.Create(new Int32Generator()));
             For(NullableGenerator.Create(new Int64Generator()));
+            For(NullableGenerator.Create(new UInt16Generator()));
+            For(NullableGenerator.Create(new UInt32Generator()));
+            For(NullableGenerator.Create(new UInt64Generator()));
             For(NullableGenerator.Create(new SByteGenerator()));
             For(new StringGenerator());
         }

@@ -9,4 +9,11 @@ namespace EntroBuilder
             return (short)(random.NextDouble() * short.MaxValue);
         }
     }
+    public class UInt16Generator : ScalarGenerator<ushort>
+    {
+        protected override ushort NextImpl(Random random)
+        {
+            return (ushort)(random.NextDouble() * ushort.MaxValue);
+        }
+    }
 }

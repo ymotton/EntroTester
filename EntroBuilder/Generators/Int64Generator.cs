@@ -9,4 +9,11 @@ namespace EntroBuilder
             return (long)(random.NextDouble() * long.MaxValue);
         }
     }
+    public class UInt64Generator : ScalarGenerator<ulong>
+    {
+        protected override ulong NextImpl(Random random)
+        {
+            return (ulong)(random.NextDouble() * ulong.MaxValue);
+        }
+    }
 }

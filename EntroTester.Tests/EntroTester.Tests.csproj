@@ -51,10 +51,11 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="EntroBuilderTests.cs" />
-    <Compile Include="EntroTestRunnerTests.cs" />
+    <Compile Include="EntroBuilder\DataTypeTests.cs" />
+    <Compile Include="EntroBuilder\PossibleValueDistributionTests.cs" />
+    <Compile Include="EntroTester\EntroTestRunnerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SequenceGeneratorTests.cs" />
+    <Compile Include="EntroBuilder\SequenceGeneratorTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EntroBuilder\EntroBuilder.csproj">

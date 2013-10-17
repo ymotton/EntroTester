@@ -9,7 +9,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace EntroTester.Tests
 {
     [TestClass]
-    public class EntroBuilderTests
+    public class PossibleValueDistributionTests
     {
         static List<Root> _roots;
         const byte ByteValue = 127;
@@ -240,44 +240,9 @@ namespace EntroTester.Tests
         }
 
         [TestMethod]
-        public void Build_ProducesComplexType_WithExpectedValues()
-        {
-            Assert.IsTrue(_roots.All(r => r.ComplexType.String != null));
-            Assert.IsTrue(_roots.Any(r => r.ComplexType.Integer != 0));
-        }
-
-        [TestMethod]
-        public void Build_ProducesNestedComplexType_WithExpectedValues()
-        {
-            Assert.IsTrue(_roots.All(r => r.ComplexType.NestedComplexType.String != null));
-            Assert.IsTrue(_roots.Any(r => r.ComplexType.NestedComplexType.DateTime != DateTime.MinValue));
-        }
-
-        [TestMethod]
-        public void Build_ProducesComplexTypeWithPrivateMember_WithExpectedValues()
-        {
-            Assert.IsTrue(_roots.All(r => r.ComplexType.ComplexTypeWithPrivateMember.ToString() != null));
-        }
-
-        [TestMethod]
-        public void Build_ProducesComplexTypeWithPrivateReadonlyMember_WithExpectedValues()
-        {
-            Assert.IsTrue(_roots.All(r => r.ComplexType.ComplexTypeWithPrivateReadOnlyMember.ToString() != null));
-        }
-
-        [TestMethod]
         public void Build_ProducesMyEnum_WithExpectedValue()
         {
             Assert.IsTrue(_roots.All(r => Enum.GetValues(typeof(MyEnum)).Cast<int>().Contains((int)r.MyEnum)));
-        }
-
-        [TestMethod]
-        public void Build_ProducesNullableMyEnum_WithExpectedValue()
-        {
-            Assert.IsTrue(_roots.Any(r => !r.NullableMyEnum.HasValue));
-            Assert.IsTrue(_roots.Any(r => r.NullableMyEnum.HasValue));
-
-            Assert.IsTrue(_roots.All(r => !r.NullableMyEnum.HasValue || Enum.GetValues(typeof(MyEnum)).Cast<int>().Contains((int)r.NullableMyEnum.Value)));
         }
 
         [TestMethod]
@@ -342,178 +307,91 @@ namespace EntroTester.Tests
             Assert.IsTrue(PossibleIntegers.Contains(distinctValues[2]));
         }
 
-        [TestMethod]
-        public void Build_WithPrivateDefaultCtor_ProducesInstance()
+        class Root
         {
-            var instance = Builder.Create<ClassWithPrivateDefaultCtor>()
-                                  .Build();
+            // Scalars are currently given a default random value, if no generation strategy is specified
+            public Guid Id { get; set; }
+            public string String_RandomValue { get; set; }
 
-            Assert.IsNotNull(instance);
-            Assert.IsInstanceOfType(instance, typeof(ClassWithPrivateDefaultCtor));
+            // Nullable properties have 50% chance to be null, 50% a random value
+            public DateTime? Nullable_DateTime { get; set; }
+
+            // Currently unsupported - ignored
+            public byte[] Ignore_ByteArray { get; set; }
+
+            // Is.Value returns a generator that ensures the property always has the same value
+            public byte Byte_Value { get; set; }
+
+            // Any.ValueIn returns a Generator that randomly picks a value in a given enumeration
+            public int Integer_ValueIn { get; set; }
+            public double Double_ValueIn { get; set; }
+            public decimal Decimal_ValueIn { get; set; }
+            public string String_ValueIn { get; set; }
+
+            // Any.ValueBetween returns a Generator that randomly picks a value in a given range
+            // Only int, double, and decimal are currently supported, but it's easy enough to create your own...
+            public int Integer_ValueBetween { get; set; }
+            public double Double_ValueBetween { get; set; }
+            public decimal Decimal_ValueBetween { get; set; }
+
+            // Any.ValueLike returns a Generator that randomly produces values given a Regex Pattern
+            // A sort of reverse Regex, if you will. 
+            // Note: there are limitations to the supported patterns.
+            public string String_FromPattern { get; set; }
+
+            // Drill into collections given a delegate generator to influence the composition of the collection
+            public List<Person> People { get; set; }
+            public Person[] Array { get; set; }
+            public IList<Person> IList { get; set; }
+            public BindingList<Person> BindingList { get; set; }
+            public ICollection<Person> ICollection { get; set; }
+            public IEnumerable<Person> IEnumerable { get; set; }
+
+            // Drill into nested collections
+            public List<School> Schools { get; set; }
+
+            // Allows to cache a custom generator, so it doesn't need to be called each time
+            public Person CachedPerson { get; set; }
+
+            // Differentiating between properties of the same type
+            public Person OtherPerson { get; set; }
+
+            public MyEnum MyEnum { get; set; }
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(MissingMethodException))]
-        public void Build_WithNoDefaultCtor_ThrowsException()
+        class School
         {
-            Builder.Create<ClassWithNoDefaultCtor>().Build();
-            
-            Assert.Fail("This should fail.");
+            public List<Class> Classes { get; set; }
         }
 
-        [TestMethod]
-        public void Build_WithPrivatePropertySetterOnBase_ProducesValue()
+        class Class
         {
-            var instance = Builder.Create<DerivedClassForBaseWithPrivatePropertySetter>()
-                                  .Build();
-
-            Assert.IsNotNull(instance);
-            Assert.IsInstanceOfType(instance, typeof(DerivedClassForBaseWithPrivatePropertySetter));
-            Assert.IsNotNull(instance.PropertyWithPrivateSetter);
+            public List<Person> Students { get; set; }
         }
-    }
 
-    class Root
-    {
-        // Scalars are currently given a default random value, if no generation strategy is specified
-        public Guid Id { get; set; }
-        public string String_RandomValue { get; set; }
-
-        // Nullable properties have 50% chance to be null, 50% a random value
-        public DateTime? Nullable_DateTime { get; set; }
-
-        // Currently unsupported - ignored
-        public byte[] Ignore_ByteArray { get; set; }
-
-        // Is.Value returns a generator that ensures the property always has the same value
-        public byte Byte_Value { get; set; }
-
-        // Any.ValueIn returns a Generator that randomly picks a value in a given enumeration
-        public int Integer_ValueIn { get; set; }
-        public double Double_ValueIn { get; set; }
-        public decimal Decimal_ValueIn { get; set; }
-        public string String_ValueIn { get; set; }
-        
-        // Any.ValueBetween returns a Generator that randomly picks a value in a given range
-        // Only int, double, and decimal are currently supported, but it's easy enough to create your own...
-        public int Integer_ValueBetween { get; set; }
-        public double Double_ValueBetween { get; set; }
-        public decimal Decimal_ValueBetween { get; set; }
-
-        // Any.ValueLike returns a Generator that randomly produces values given a Regex Pattern
-        // A sort of reverse Regex, if you will. 
-        // Note: there are limitations to the supported patterns.
-        public string String_FromPattern { get; set; }
-
-        // Drill into collections given a delegate generator to influence the composition of the collection
-        public List<Person> People { get; set; }
-        public Person[] Array { get; set; }
-        public IList<Person> IList { get; set; }
-        public BindingList<Person> BindingList { get; set; }
-        public ICollection<Person> ICollection { get; set; }
-        public IEnumerable<Person> IEnumerable { get; set; }
-
-        // Drill into nested collections
-        public List<School> Schools { get; set; }
-
-        // Allows to cache a custom generator, so it doesn't need to be called each time
-        public Person CachedPerson { get; set; }
-
-        // Differentiating between properties of the same type
-        public Person OtherPerson { get; set; }
-
-        // Support for structs
-        public ComplexType ComplexType { get; set; }
-
-        // Support for Nullable structs
-        public ComplexType? NullableComplexType { get; set; }
-
-        // Support for enums
-        public MyEnum MyEnum { get; set; }
-
-        // Support for nullable enums
-        public MyEnum? NullableMyEnum { get; set; }
-    }
-
-    class School
-    {
-        public List<Class> Classes { get; set; }
-    }
-    
-    class Class
-    {
-        public List<Person> Students { get; set; }
-    }
-
-    class Person
-    {
-        public string Name { get; set; }
-        public string Country { get; set; }
-
-        // Any.ValueIn returns a Generator that randomly picks a value in a given enumeration
-        public int Integer_ValueIn { get; set; }
-        public double Double_ValueIn { get; set; }
-        public decimal Decimal_ValueIn { get; set; }
-        public string String_ValueIn { get; set; }
-
-        // Any.ValueBetween returns a Generator that randomly picks a value in a given range
-        // Only int, double, and decimal are currently supported, but it's easy enough to create your own...
-        public int Integer_ValueBetween { get; set; }
-        public double Double_ValueBetween { get; set; }
-        public decimal Decimal_ValueBetween { get; set; }
-    }
-
-    struct ComplexType
-    {
-        public string String;
-        public int Integer;
-        // Nested structs
-        public NestedComplexType NestedComplexType;
-        // Structs with private members
-        public ComplexTypeWithPrivateMember ComplexTypeWithPrivateMember;
-        // Structs with private readonly members
-        public ComplexTypeWithPrivateReadOnlyMember ComplexTypeWithPrivateReadOnlyMember;
-    }
-    struct NestedComplexType
-    {
-        public string String;
-        public DateTime DateTime;
-    }
-    struct ComplexTypeWithPrivateMember
-    {
-        private string String;
-        public override string ToString()
+        class Person
         {
-            return String;
+            public string Name { get; set; }
+            public string Country { get; set; }
+
+            // Any.ValueIn returns a Generator that randomly picks a value in a given enumeration
+            public int Integer_ValueIn { get; set; }
+            public double Double_ValueIn { get; set; }
+            public decimal Decimal_ValueIn { get; set; }
+            public string String_ValueIn { get; set; }
+
+            // Any.ValueBetween returns a Generator that randomly picks a value in a given range
+            // Only int, double, and decimal are currently supported, but it's easy enough to create your own...
+            public int Integer_ValueBetween { get; set; }
+            public double Double_ValueBetween { get; set; }
+            public decimal Decimal_ValueBetween { get; set; }
         }
-    }
-    struct ComplexTypeWithPrivateReadOnlyMember
-    {
-        private readonly string String;
-        public override string ToString()
+
+        enum MyEnum
         {
-            return String;
+            One = 1,
+            Two = 2,
+            Max = int.MaxValue
         }
-    }
-    enum MyEnum
-    {
-        One = 1,
-        Two = 2,
-        Max = int.MaxValue
-    }
-    class ClassWithPrivateDefaultCtor
-    {
-        ClassWithPrivateDefaultCtor() { }
-    }
-    class ClassWithNoDefaultCtor
-    {
-        public ClassWithNoDefaultCtor(string required) { }
-    }
-    class BaseClassWithPrivatePropertySetter
-    {
-        public string PropertyWithPrivateSetter { get; private set; }
-    }
-    class DerivedClassForBaseWithPrivatePropertySetter : BaseClassWithPrivatePropertySetter
-    {
     }
 }
