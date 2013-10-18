@@ -50,8 +50,9 @@
     <Compile Include="Generators\DecimalGenerator.cs" />
     <Compile Include="Generators\DecimalRangeGenerator.cs" />
     <Compile Include="Generators\DoubleGenerator.cs" />
-    <Compile Include="Generators\DoubleRangeGenerator.cs" />
+    <Compile Include="Generators\FloatRangeGenerator.cs" />
     <Compile Include="Generators\FloatGenerator.cs" />
+    <Compile Include="Generators\GeneratorExtensions.cs" />
     <Compile Include="Generators\GuidGenerator.cs" />
     <Compile Include="Generators\IGenerator.cs" />
     <Compile Include="Generators\Int16Generator.cs" />
@@ -59,6 +60,7 @@
     <Compile Include="Generators\Int64Generator.cs" />
     <Compile Include="Generators\IntegerRangeGenerator.cs" />
     <Compile Include="Generators\NullableGenerator.cs" />
+    <Compile Include="Generators\RandomExtensions.cs" />
     <Compile Include="Generators\RangeGenerator.cs" />
     <Compile Include="Generators\RegexGenerator.cs" />
     <Compile Include="Generators\SByteGenerator.cs" />
@@ -72,7 +74,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="EntroBuilder.nuspec" />
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />

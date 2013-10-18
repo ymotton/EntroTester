@@ -53,6 +53,7 @@
   <ItemGroup>
     <Compile Include="EntroBuilder\DataTypeTests.cs" />
     <Compile Include="EntroBuilder\PossibleValueDistributionTests.cs" />
+    <Compile Include="EntroBuilder\RangeGeneratorTests.cs" />
     <Compile Include="EntroTester\EntroTestRunnerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="EntroBuilder\SequenceGeneratorTests.cs" />

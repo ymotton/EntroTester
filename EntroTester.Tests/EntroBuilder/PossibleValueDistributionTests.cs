@@ -29,17 +29,17 @@ namespace EntroTester.Tests
         static IEnumerable<Person> CreatePeople()
         {
             var people = Builder.Create<Person>()
-                                        .Property(p => p.Country, Is.Value("Belgium"))
-                                        .Take(2)
-                .Concat(Builder.Create<Person>()
-                                        .Property(p => p.Country, Is.Value("France"))
-                                        .Take(2))
-                .Concat(Builder.Create<Person>()
-                                        .Property(p => p.Country, Is.Value("Germany"))
-                                        .Take(2))
-                .Concat(Builder.Create<Person>()
-                                        .Property(p => p.Country, Is.Value("United Kingdom"))
-                                        .Take(2));
+                                .Property(p => p.Country, Is.Value("Belgium"))
+                                .Take(2)
+                 .Concat(Builder.Create<Person>()
+                                .Property(p => p.Country, Is.Value("France"))
+                                .Take(2))
+                 .Concat(Builder.Create<Person>()
+                                .Property(p => p.Country, Is.Value("Germany"))
+                                .Take(2))
+                 .Concat(Builder.Create<Person>()
+                                .Property(p => p.Country, Is.Value("United Kingdom"))
+                                .Take(2));
             return people;
         }
         static int _cachedGeneratorCallCount;
@@ -79,7 +79,7 @@ namespace EntroTester.Tests
                     DelegateGeneratorOptions.Cached))
                 .Property(a => a.Schools.SelectMany(s => s.Classes).SelectMany(c => c.Students).Select(s => s.Name), Is.Value(StudentName));
 
-            _roots = builder.Take(10000).ToList();
+            _roots = builder.Take(100).ToList();
         }
 
         [TestMethod]
@@ -164,12 +164,6 @@ namespace EntroTester.Tests
         public void Build_ProducesRoot_WithNullableDateTimeSometimesNonNull()
         {
             Assert.IsTrue(_roots.Any(i => i.Nullable_DateTime != null));
-        }
-
-        [TestMethod]
-        public void Build_ProducesRoot_WithIngoreByteArrayAlwaysNull()
-        {
-            Assert.IsTrue(_roots.All(i => i.Ignore_ByteArray == null));
         }
 
         [TestMethod]
@@ -260,9 +254,9 @@ namespace EntroTester.Tests
         [TestMethod]
         public void Build_ProducesInt_WithDifferentValues()
         {
-            var values = Builder.Create<int>().Take(1000);
+            var values = Builder.Create<int>().Take(100);
 
-            bool producesDifferentValues = values.GroupBy(i => i).Count() > 100;
+            bool producesDifferentValues = values.GroupBy(i => i).Count() > 95;
 
             Assert.IsTrue(producesDifferentValues);
         }
@@ -270,9 +264,9 @@ namespace EntroTester.Tests
         [TestMethod]
         public void Build_ProducesString_WithDifferentValues()
         {
-            var values = Builder.Create<string>().Take(1000);
+            var values = Builder.Create<string>().Take(100);
 
-            bool producesDifferentValues = values.GroupBy(i => i).Count() > 100;
+            bool producesDifferentValues = values.GroupBy(i => i).Count() > 95;
 
             Assert.IsTrue(producesDifferentValues);
         }
@@ -315,9 +309,6 @@ namespace EntroTester.Tests
 
             // Nullable properties have 50% chance to be null, 50% a random value
             public DateTime? Nullable_DateTime { get; set; }
-
-            // Currently unsupported - ignored
-            public byte[] Ignore_ByteArray { get; set; }
 
             // Is.Value returns a generator that ensures the property always has the same value
             public byte Byte_Value { get; set; }
@@ -389,6 +380,7 @@ namespace EntroTester.Tests
 
         enum MyEnum
         {
+            None = 0,
             One = 1,
             Two = 2,
             Max = int.MaxValue

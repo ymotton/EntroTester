@@ -13,8 +13,8 @@ namespace EntroTester.Tests
         {
             EntroTestRunner.Run(
                 Builder.Create<ParameterlessCtorTuple<int, int>>()
-                            .Property(c => c.Item1, Any.ValueBetween(-100, 100))
-                            .Property(c => c.Item2, Any.ValueBetween(-100, 100)), 
+                       .Property(c => c.Item1, Any.ValueBetween(-100, 100))
+                       .Property(c => c.Item2, Any.ValueBetween(-100, 100)), 
                 SystemUnderTest.HaveAFailingBranch,
                 m => m == true,
                 1000000);
@@ -26,10 +26,10 @@ namespace EntroTester.Tests
             var faulty = 
                 EntroTestRunner.Replay(
                     Builder.Create<ParameterlessCtorTuple<int, int>>()
-                            .Property(c => c.Item1, Any.ValueBetween(-100, 100))
-                            .Property(c => c.Item2, Any.ValueBetween(-100, 100)),
+                           .Property(c => c.Item1, Any.ValueBetween(-100, 100))
+                           .Property(c => c.Item2, Any.ValueBetween(-100, 100)),
                     5889973,
-                    40263);
+                    10859);
 
             var result = SystemUnderTest.HaveAFailingBranch(faulty);
             Assert.AreEqual(false, result);
@@ -41,8 +41,8 @@ namespace EntroTester.Tests
         {
             EntroTestRunner.Run(
                 Builder.Create<ParameterlessCtorTuple<int, int>>()
-                            .Property(c => c.Item1, Any.ValueBetween(-100, 100))
-                            .Property(c => c.Item2, Any.ValueBetween(-100, 100)),
+                       .Property(c => c.Item1, Any.ValueBetween(-100, 100))
+                       .Property(c => c.Item2, Any.ValueBetween(-100, 100)),
                 SystemUnderTest.DividesByZero,
                 Returns.Any<int>(),
                 1000000);
@@ -54,7 +54,7 @@ namespace EntroTester.Tests
         {
             EntroTestRunner.Run(
                 Builder.Create<ParameterlessCtorTuple<string>>()
-                            .Property(c => c.Item1, Any.ValueLike(@"(( |\t){1,2}[a-zA-Z0-9]{1,2}){1,2}")),
+                       .Property(c => c.Item1, Any.ValueLike(@"(( |\t){1,2}[a-zA-Z0-9]{1,2}){1,2}")),
                 SystemUnderTest.ParsesWord,
                 r => r != null && r.Length > 0,
                 10000);

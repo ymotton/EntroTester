@@ -1,4 +1,5 @@
 using System;
+using EntroBuilder.Generators;
 
 namespace EntroBuilder
 {
@@ -9,18 +10,7 @@ namespace EntroBuilder
         }
         static decimal GenerateRandomBetween(decimal minValue, decimal maxValue, Random random)
         {
-            if (minValue < 0)
-            {
-                // Not uniformely random, but who cares
-                var result = ((decimal)random.NextDouble() * minValue) + ((decimal)random.NextDouble() * maxValue);
-                return result;
-            }
-            else
-            {
-                var range = maxValue - minValue;
-                var result = (decimal)random.NextDouble() * range + minValue;
-                return result;
-            }
+            return random.NextBetween(minValue, maxValue);
         }
     }
 }
