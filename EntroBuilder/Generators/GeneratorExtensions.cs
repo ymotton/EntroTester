@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace EntroBuilder.Generators
+namespace EntroBuilder
 {
     public static class GeneratorExtensions
     {

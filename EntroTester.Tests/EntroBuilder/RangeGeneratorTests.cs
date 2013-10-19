@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using EntroBuilder;
-using EntroBuilder.Generators;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace EntroTester.Tests.EntroBuilder
@@ -108,7 +107,7 @@ namespace EntroTester.Tests.EntroBuilder
         {
             var generator = new FloatRangeGenerator(-5, 5);
 
-            var distinctItems = generator.AsEnumerable(_rnd).Take(100).Select(f => Math.Round(f, 0, MidpointRounding.ToEven)).Distinct().ToList();
+            var distinctItems = generator.AsEnumerable(_rnd).Take(1000).Select(f => (int)Math.Round(f, 0, MidpointRounding.ToEven)).Distinct().ToList();
 
             Assert.AreEqual(11, distinctItems.Count);
             Assert.IsFalse(distinctItems.Any(i => i < -5));
@@ -146,7 +145,7 @@ namespace EntroTester.Tests.EntroBuilder
         {
             var generator = new DoubleRangeGenerator(-5, 5);
 
-            var distinctItems = generator.AsEnumerable(_rnd).Take(100).Select(f => Math.Round(f, 0, MidpointRounding.ToEven)).Distinct().ToList();
+            var distinctItems = generator.AsEnumerable(_rnd).Take(1000).Select(f => Math.Round(f, 0, MidpointRounding.ToEven)).Distinct().ToList();
             
             Assert.AreEqual(11, distinctItems.Count);
             Assert.IsFalse(distinctItems.Any(i => i < -5));

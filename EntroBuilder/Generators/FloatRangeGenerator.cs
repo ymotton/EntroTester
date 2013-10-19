@@ -9,10 +9,7 @@ namespace EntroBuilder
         }
         static float GenerateRandomBetween(float minValue, float maxValue, Random random)
         {
-            float range = Math.Abs(maxValue - minValue);
-            float delta = (float)(random.NextDouble() * range);
-            float result = minValue + delta;
-            return result;
+            return random.NextBetween(minValue, maxValue);
 
         }
     } 
@@ -23,10 +20,7 @@ namespace EntroBuilder
         }
         static double GenerateRandomBetween(double minValue, double maxValue, Random random)
         {
-            double range = Math.Abs(maxValue - minValue);
-            double delta = random.NextDouble() * range;
-            double result = minValue + delta;
-            return result;
+            return random.NextBetween(minValue, maxValue);
         }
     }
 }

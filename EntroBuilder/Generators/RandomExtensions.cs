@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace EntroBuilder.Generators
+namespace EntroBuilder
 {
     public static class RandomExtensions
     {
@@ -64,22 +64,10 @@ namespace EntroBuilder.Generators
         }
         public static double NextBetween(this Random random, double min, double max)
         {
-            double upperCutoff, lowerCutoff, candidate;
-            do
-            {
-                byte[] buf = new byte[8];
-                random.NextBytes(buf);
-                candidate = BitConverter.ToDouble(buf, 0);
-                upperCutoff = max == 0 ? 0 : double.MaxValue - ((double.MaxValue % max) + 1) % max;
-                lowerCutoff = min == 0 ? 0 : double.MinValue - ((double.MinValue % min) - 1) % min;
-            } while (candidate > upperCutoff || candidate < lowerCutoff);
-
-            if (candidate > min && candidate > 0)
-            {
-                return (candidate % max);
-            }
-            return (candidate % min);
-
+            double range = Math.Abs(max - min);
+            double delta = random.NextDouble() * range;
+            double result = min + delta;
+            return result;
         }
 
         public static decimal NextBetween(this Random random, decimal min, decimal max)
