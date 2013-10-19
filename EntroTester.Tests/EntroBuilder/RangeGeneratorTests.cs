@@ -119,7 +119,9 @@ namespace EntroTester.Tests.EntroBuilder
         {
             var generator = new FloatRangeGenerator(float.MinValue, float.MaxValue);
 
-            generator.AsEnumerable(_rnd).Take(100).ToList();
+            var items = generator.AsEnumerable(_rnd).Take(100).ToList();
+
+            Assert.IsTrue(items.All(i => !float.IsInfinity(i)));
         }
 
         [TestMethod]
@@ -153,11 +155,13 @@ namespace EntroTester.Tests.EntroBuilder
         }
 
         [TestMethod]
-        public void Next_DoubleRange_DoesntOverflowForLargeValues()
+        public void Next_DoubleRange_OverflowsForLargeValues()
         {
             var generator = new DoubleRangeGenerator(double.MinValue, double.MaxValue);
 
-            generator.AsEnumerable(_rnd).Take(100).ToList();
+            var items = generator.AsEnumerable(_rnd).Take(100).ToList();
+
+            Assert.IsTrue(items.All(i => double.IsInfinity(i)));
         }
 
         [TestMethod]
@@ -177,7 +181,7 @@ namespace EntroTester.Tests.EntroBuilder
             var items = generator.AsEnumerable(_rnd).Take(100).ToList();
             Assert.IsTrue(items.All(i => i >= 0));
         }
-
+        
         [TestMethod]
         public void Next_DecimalRange_ProducesOnlyValuesInRange()
         {
