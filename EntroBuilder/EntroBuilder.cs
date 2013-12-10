@@ -17,6 +17,7 @@ namespace EntroBuilder
         {
             _random = new Random(seed ?? Seed);
 
+            For(new CharGenerator());
             For(new BoolGenerator());
             For(new ByteGenerator());
             For(new DateTimeGenerator());
@@ -31,6 +32,7 @@ namespace EntroBuilder
             For(new UInt32Generator());
             For(new UInt64Generator());
             For(new SByteGenerator());
+            For(NullableGenerator.Create(new CharGenerator()));
             For(NullableGenerator.Create(new BoolGenerator()));
             For(NullableGenerator.Create(new ByteGenerator()));
             For(NullableGenerator.Create(new DateTimeGenerator()));

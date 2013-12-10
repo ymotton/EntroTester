@@ -16,6 +16,7 @@ namespace EntroTester.Tests
                                   .Take(10)
                                   .ToList();
 
+            Assert.IsTrue(instance.Any(t => t.Char != (char)0));
             Assert.IsTrue(instance.Any(t => t.Bool));
             Assert.IsTrue(instance.Any(t => t.Decimal != 0.0M));
             Assert.IsTrue(instance.Any(t => t.Double != 0.0D));
@@ -36,6 +37,7 @@ namespace EntroTester.Tests
                                   .Take(10)
                                   .ToList();
 
+            Assert.IsTrue(instance.Any(t => t.NullableChar.HasValue));
             Assert.IsTrue(instance.Any(t => t.NullableBool.HasValue));
             Assert.IsTrue(instance.Any(t => t.NullableDecimal.HasValue));
             Assert.IsTrue(instance.Any(t => t.NullableDouble.HasValue));
@@ -241,10 +243,11 @@ namespace EntroTester.Tests
             Assert.IsNotNull(instance);
             Assert.IsInstanceOfType(instance, typeof(DerivedClassForBaseWithPrivatePropertySetter));
             Assert.IsNotNull(instance.PropertyWithPrivateSetter);
-        }
-
+        }    
+    
         class ReferenceType
         {
+            public char Char { get; set; }
             public bool Bool { get; set; }
             public short Short { get; set; }
             public ushort UnsignedShort { get; set; }
@@ -260,6 +263,7 @@ namespace EntroTester.Tests
             public MyEnum Enum { get; set; }
             public NestedComplexType NestedComplexType { get; set; }
 
+            public char? NullableChar { get; set; }
             public bool? NullableBool { get; set; }
             public short? NullableShort { get; set; }
             public ushort? NullableUnsignedShort { get; set; }
