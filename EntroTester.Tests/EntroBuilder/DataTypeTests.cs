@@ -99,7 +99,8 @@ namespace EntroTester.Tests
             Assert.IsTrue(instance.All(t => t.ICollection.Any()));
             Assert.IsTrue(instance.All(t => t.IList.Any()));
             Assert.IsTrue(instance.All(t => t.List.Any()));
-            Assert.IsTrue(instance.All(t => t.Array == null));
+            Assert.IsTrue(instance.All(t => t.Dictionary.Any()));
+            Assert.IsTrue(instance.All(t => t.Array.Any()));
         }        
         
         [TestMethod]
@@ -190,7 +191,8 @@ namespace EntroTester.Tests
             Assert.IsTrue(instance.All(t => t.ICollection.Any()));
             Assert.IsTrue(instance.All(t => t.IList.Any()));
             Assert.IsTrue(instance.All(t => t.List.Any()));
-            Assert.IsTrue(instance.All(t => t.Array == null));
+            Assert.IsTrue(instance.All(t => t.Dictionary.Any()));
+            Assert.IsTrue(instance.All(t => t.Array.Any()));
         }
 
         [TestMethod]
@@ -287,6 +289,7 @@ namespace EntroTester.Tests
             public IList<Guid> IList { get; set; }
             public List<Guid> List { get; set; }
             public Guid[] Array { get; set; }
+            public Dictionary<int, string> Dictionary { get; set; } 
         }
         struct ComplexType
         {
@@ -328,6 +331,7 @@ namespace EntroTester.Tests
             public IList<Guid> IList;
             public List<Guid> List;
             public Guid[] Array;
+            public Dictionary<string, Guid> Dictionary { get; set; } 
         }
         struct NestedComplexType
         {

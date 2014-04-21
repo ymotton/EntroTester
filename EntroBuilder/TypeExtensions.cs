@@ -29,6 +29,11 @@ namespace EntroBuilder
             bool isSequence = type.ImplementsGenericInterface(typeof(IEnumerable<>));
             return isSequence;
         }
+        public static bool IsDictionary(this Type type)
+        {
+            bool isDictionary = type.ImplementsGenericInterface(typeof (IDictionary<,>));
+            return isDictionary;
+        }
 
         public static PropertyInfo GetPropertyInfo<T, TProperty>(this Expression<Func<T, TProperty>> propertyExpression)
         {

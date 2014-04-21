@@ -131,13 +131,17 @@ namespace EntroBuilder
                     instance = BuildCollectionForGeneratorImpl(type, generator);
                 }
             }
+            else if (type.IsDictionary())
+            {
+                instance = BuildDictionaryImpl(context, type);
+            }
             else if (type.IsSequence())
             {
                 instance = BuildCollectionImpl(context, type);
             }
             else if (type.IsArray)
             {
-                return null;
+                instance = BuildArrayImpl(context, type);
             }
             else if (type.IsClass)
             {
@@ -197,6 +201,25 @@ namespace EntroBuilder
 
             return instance;
         }
+        object BuildDictionaryImpl(TypeContext context, Type propertyType)
+        {
+            Type keyType = propertyType.GetGenericArguments().First();
+            Type valueType = propertyType.GetGenericArguments().Skip(1).Single();
+            Type dictionaryType;
+            if (propertyType.IsInterface)
+            {
+                dictionaryType = typeof (Dictionary<,>).MakeGenericType(keyType, valueType);
+            }
+            else
+            {
+                dictionaryType = propertyType;
+            }
+            var dictionaryInstance = (IDictionary)Activator.CreateInstance(dictionaryType);
+            var keyInstance = BuildImpl(context, keyType);
+            var valueInstance = BuildImpl(context, valueType);
+            dictionaryInstance.Add(keyInstance, valueInstance);
+            return dictionaryInstance;
+        }
         object BuildCollectionImpl(TypeContext context, Type propertyType)
         {
             Type elementType = propertyType.GetGenericArguments().Single();
@@ -212,6 +235,14 @@ namespace EntroBuilder
             var instance = (IList)Activator.CreateInstance(collectionType);
             var item = BuildImpl(context, elementType);
             instance.Add(item);
+            return instance;
+        }
+        object BuildArrayImpl(TypeContext context, Type propertyType)
+        {
+            var elementType = propertyType.GetElementType();
+            var instance = Array.CreateInstance(elementType, 1);
+            var item = BuildImpl(context, elementType);
+            instance.SetValue(item, 0);
             return instance;
         }
         object BuildCollectionForGeneratorImpl(Type propertyType, IGenerator generator)
