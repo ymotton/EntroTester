@@ -10,13 +10,19 @@ namespace EntroBuilder
 {
     public class Builder<T>
     {
-        const int Seed = 0x1;
+        const int DefaultSeed = 0x1;
         Random _random;
 
-        public Builder(int? seed = null)
+        public Builder() : this(DefaultSeed) { }
+        public Builder(int seed) : this(new Random(seed)) { }
+        public Builder(Random random)
         {
-            _random = new Random(seed ?? Seed);
+            _random = random;
+            RegisterDefaultGenerators();
+        }
 
+        void RegisterDefaultGenerators()
+        {
             For(new CharGenerator());
             For(new BoolGenerator());
             For(new ByteGenerator());
@@ -92,12 +98,6 @@ namespace EntroBuilder
         }
         public IEnumerable<T> Take(int count)
         {
-            var result = Take(count, Seed);
-            return result;
-        }
-        public IEnumerable<T> Take(int count, int seed)
-        {
-            _random = new Random(seed);
             for (int i = 0; i < count; i++)
             {
                 yield return Build();
@@ -322,6 +322,11 @@ namespace EntroBuilder
             var builder = new Builder<T>();
             return builder;
         }
+        public static Builder<T> Create<T>(Random random)
+        {
+            var builder = new Builder<T>(random);
+            return builder;
+        }
         public static Builder<T> Create<T>(int seed) 
         {
             var builder = new Builder<T>(seed);
@@ -331,6 +336,11 @@ namespace EntroBuilder
         public static T Build<T>() 
         {
             var instance = new Builder<T>().Build();
+            return instance;
+        }
+        public static T Build<T>(Random random)
+        {
+            var instance = new Builder<T>(random).Build();
             return instance;
         }
         public static T Build<T>(int seed) 

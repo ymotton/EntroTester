@@ -54,7 +54,6 @@
     <Compile Include="EntroBuilder\DataTypeTests.cs" />
     <Compile Include="EntroBuilder\PossibleValueDistributionTests.cs" />
     <Compile Include="EntroBuilder\RangeGeneratorTests.cs" />
-    <Compile Include="EntroTester\EntroTestRunnerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="EntroBuilder\SequenceGeneratorTests.cs" />
   </ItemGroup>
@@ -67,6 +66,9 @@
       <Project>{c2074150-d327-4997-8d7e-69cb9a90f488}</Project>
       <Name>EntroTester</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="EntroTester\" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
