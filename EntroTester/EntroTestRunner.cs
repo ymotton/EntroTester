@@ -7,17 +7,19 @@ namespace EntroTester
 {
     public class EntroTestRunner
     {
-        public static void Run<T, TResult>(Builder<T> builder, Func<T, TResult> when, Expression<Func<TResult, bool>> assertionExpression, int count)
+        public static void Run<T, TResult>(Action<Builder<T>> configureBuilder, Func<T, TResult> when, Expression<Func<TResult, bool>> assertionExpression, int count)
             where T : class, new()
         {
-            int seed = Environment.TickCount;
-            Run(builder, when, assertionExpression, count, seed);
+            Run(configureBuilder, when, assertionExpression, count, Environment.TickCount);
         }
-        public static void Run<T, TResult>(Builder<T> builder, Func<T, TResult> when, Expression<Func<TResult, bool>> assertionExpression, int count, int seed)
+        public static void Run<T, TResult>(Action<Builder<T>> configureBuilder, Func<T, TResult> when, Expression<Func<TResult, bool>> assertionExpression, int count, int seed)
             where T : class, new()
         {
+            var builder = Builder.Create<T>(seed);
+            configureBuilder(builder);
+
             var assertion = assertionExpression.Compile();
-            var items = builder.Take(count, seed);
+            var items = builder.Take(count);
             int i = 0;
             foreach (var item in items)
             {
@@ -30,16 +32,18 @@ namespace EntroTester
             }
         }
 
-        public static void Run<T, TResult, TExpected>(Builder<T> builder, Func<T, TResult> when, ExpectedResult<TExpected> expectedResult, int count)
+        public static void Run<T, TResult, TExpected>(Action<Builder<T>> configureBuilder, Func<T, TResult> when, ExpectedResult<TExpected> expectedResult, int count)
             where T : class, new()
         {
-            int seed = Environment.TickCount;
-            Run(builder, when, expectedResult, count, seed);
+            Run(configureBuilder, when, expectedResult, count, Environment.TickCount);
         }
-        public static void Run<T, TResult, TExpected>(Builder<T> builder, Func<T, TResult> when, ExpectedResult<TExpected> expectedResult, int count, int seed)
+        public static void Run<T, TResult, TExpected>(Action<Builder<T>> configureBuilder, Func<T, TResult> when, ExpectedResult<TExpected> expectedResult, int count, int seed)
             where T : class, new()
         {
-            var items = builder.Take(count, seed);
+            var builder = Builder.Create<T>(seed);
+            configureBuilder(builder); 
+
+            var items = builder.Take(count);
             int i = 0;
             foreach (var item in items)
             {
@@ -64,10 +68,12 @@ namespace EntroTester
             }
         }
 
-        public static T Replay<T>(Builder<T> builder, int seed, int iteration)
+        public static T Replay<T>(Action<Builder<T>> configureBuilder, int seed, int iteration)
             where T : class, new()
         {
-            var items = builder.Take(iteration + 1, seed);
+            var builder = Builder.Create<T>(seed);
+            configureBuilder(builder);
+            var items = builder.Take(iteration + 1);
             var last = items.Last();
             return last;
         }
