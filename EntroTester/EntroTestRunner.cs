@@ -26,7 +26,9 @@ namespace EntroTester
                 var result = when(item);
                 if (!assertion(result))
                 {
-                    throw new AssertionException(assertionExpression, seed, i);
+                    // TODO: Shrink item value to minimal failing case
+                    // Only makes sense for enumeration types
+                    throw AssertionException.Create(assertionExpression, seed, i, item);
                 }
                 i++;
             }
@@ -62,7 +64,7 @@ namespace EntroTester
 
                 if (!expectedResult.IsValid(resultType, result))
                 {
-                    throw new ExpectedResultException<TExpected>(expectedResult, seed, i);
+                    throw ExpectedResultException.Create(expectedResult, seed, i, item);
                 }
                 i++;
             }

@@ -2,13 +2,13 @@
 <package >
   <metadata>
     <id>EntroTester</id>
-    <version>1.1.0</version>
+    <version>1.2.0</version>
     <title>EntroTester</title>
     <authors>Yannick Motton</authors>
     <owners>Yannick Motton</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Library to facilitate automated blackbox testing to discover unhandeled branches</description>
-    <copyright>Copyright 2013</copyright>
+    <copyright>Copyright 2014</copyright>
     <tags>EntroTester Test</tags>
   </metadata>
 </package>

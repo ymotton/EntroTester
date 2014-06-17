@@ -35,7 +35,7 @@ namespace EntroTester.Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ExpectedResultException<int>))]
+        [ExpectedException(typeof(ExpectedResultException))]
         public void Run2()
         {
             EntroTestRunner.Run(
