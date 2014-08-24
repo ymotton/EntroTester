@@ -109,6 +109,8 @@ namespace EntroBuilder
             var context = new TypeContext(typeof(T));
             return (T)BuildImpl(context, typeof(T));
         }
+
+        readonly Dictionary<Type, object> _classInstanceCache = new Dictionary<Type, object>();
         object BuildImpl(TypeContext context, Type type)
         {
             object instance;
@@ -145,19 +147,31 @@ namespace EntroBuilder
             }
             else if (type.IsClass)
             {
-                instance = Activator.CreateInstance(type, true);
-
-                var properties = type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                foreach (var property in properties)
+                if (!_classInstanceCache.TryGetValue(type, out instance))
                 {
-                    var propertyOnDeclaringType = property.DeclaringType.GetProperty(property.Name);
-                    var typeContext = context.AddProperty(propertyOnDeclaringType);
-                    if (propertyOnDeclaringType.GetSetMethod(true) == null) continue;
+                    if (type.IsAbstract)
+                    {
+                        return null;
+                    }
+                    
+                    instance = Activator.CreateInstance(type, true);
+                    _classInstanceCache.Add(type, instance);
 
-                    var propertyType = propertyOnDeclaringType.PropertyType;
-                    object value = BuildImpl(typeContext, propertyType);
+                    var properties = type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                    foreach (var property in properties
+                        .Where(p => p.GetIndexParameters().Length == 0)) // Ignore indexed properties
+                    {
+                        var propertyOnDeclaringType = property.DeclaringType.GetProperty(property.Name);
+                        if (propertyOnDeclaringType == null) continue;
 
-                    propertyOnDeclaringType.SetValue(instance, value, new object[0]);
+                        var typeContext = context.AddProperty(propertyOnDeclaringType);
+                        if (propertyOnDeclaringType.GetSetMethod(true) == null) continue;
+
+                        var propertyType = propertyOnDeclaringType.PropertyType;
+                        object value = BuildImpl(typeContext, propertyType);
+
+                        propertyOnDeclaringType.SetValue(instance, value, new object[0]);
+                    }
                 }
             }
             else if (type.IsEnum)
