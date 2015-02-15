@@ -147,7 +147,9 @@ namespace EntroBuilder
             }
             else if (type.IsClass)
             {
-                if (!_classInstanceCache.TryGetValue(type, out instance))
+                // The root object should only served from cache if we are in a nested part of the object graph
+                // This cache is used to reduce endless recursion
+                if (context.IsRoot() || !_classInstanceCache.TryGetValue(type, out instance))
                 {
                     if (type.IsAbstract)
                     {
@@ -155,7 +157,7 @@ namespace EntroBuilder
                     }
                     
                     instance = Activator.CreateInstance(type, true);
-                    _classInstanceCache.Add(type, instance);
+                    _classInstanceCache[type] = instance;
 
                     var properties = type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
                     foreach (var property in properties
@@ -307,6 +309,10 @@ namespace EntroBuilder
                 _baseType = context._baseType;
                 _members = new List<string>(context._members);
                 _members.Add(fieldInfo.Name);
+            }
+            public bool IsRoot()
+            {
+                return !_members.Any();
             }
             public TypeContext AddProperty(PropertyInfo propertyInfo)
             {

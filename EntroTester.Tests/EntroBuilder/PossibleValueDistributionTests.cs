@@ -301,6 +301,21 @@ namespace EntroTester.Tests
             Assert.IsTrue(PossibleIntegers.Contains(distinctValues[2]));
         }
 
+        [TestMethod]
+        public void Build_ProducesInts_DistinctValues()
+        {
+            var values = Builder.Create<IntegerContainer>()
+                .Take(2)
+                .ToList();
+
+            Assert.AreNotEqual(values[0].Value, values[1].Value);
+        }
+
+        class IntegerContainer
+        {
+            public int Value { get; set; }
+        }
+
         class Root
         {
             // Scalars are currently given a default random value, if no generation strategy is specified
