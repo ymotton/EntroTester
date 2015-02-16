@@ -106,12 +106,12 @@ namespace EntroBuilder
 
         T BuildImpl()
         {
+            var classInstanceCache = new Dictionary<Type, object>();
             var context = new TypeContext(typeof(T));
-            return (T)BuildImpl(context, typeof(T));
+            return (T)BuildImpl(context, typeof(T), classInstanceCache);
         }
 
-        readonly Dictionary<Type, object> _classInstanceCache = new Dictionary<Type, object>();
-        object BuildImpl(TypeContext context, Type type)
+        object BuildImpl(TypeContext context, Type type, Dictionary<Type, object> classInstanceCache)
         {
             object instance;
             IGenerator generator;
@@ -135,21 +135,21 @@ namespace EntroBuilder
             }
             else if (type.IsDictionary())
             {
-                instance = BuildDictionaryImpl(context, type);
+                instance = BuildDictionaryImpl(context, type, classInstanceCache);
             }
             else if (type.IsSequence())
             {
-                instance = BuildCollectionImpl(context, type);
+                instance = BuildCollectionImpl(context, type, classInstanceCache);
             }
             else if (type.IsArray)
             {
-                instance = BuildArrayImpl(context, type);
+                instance = BuildArrayImpl(context, type, classInstanceCache);
             }
             else if (type.IsClass)
             {
                 // The root object should only served from cache if we are in a nested part of the object graph
                 // This cache is used to reduce endless recursion
-                if (context.IsRoot() || !_classInstanceCache.TryGetValue(type, out instance))
+                if (!classInstanceCache.TryGetValue(type, out instance))
                 {
                     if (type.IsAbstract)
                     {
@@ -157,7 +157,7 @@ namespace EntroBuilder
                     }
                     
                     instance = Activator.CreateInstance(type, true);
-                    _classInstanceCache[type] = instance;
+                    classInstanceCache[type] = instance;
 
                     var properties = type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
                     foreach (var property in properties
@@ -170,7 +170,7 @@ namespace EntroBuilder
                         if (propertyOnDeclaringType.GetSetMethod(true) == null) continue;
 
                         var propertyType = propertyOnDeclaringType.PropertyType;
-                        object value = BuildImpl(typeContext, propertyType);
+                        object value = BuildImpl(typeContext, propertyType, classInstanceCache);
 
                         propertyOnDeclaringType.SetValue(instance, value, new object[0]);
                     }
@@ -192,7 +192,7 @@ namespace EntroBuilder
                 if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
                 {
                     var innerType = type.GetGenericArguments()[0];
-                    instance = _random.Next(0, 2) == 1 ? BuildImpl(context, innerType) : null;
+                    instance = _random.Next(0, 2) == 1 ? BuildImpl(context, innerType, classInstanceCache) : null;
                 }
                 else
                 {
@@ -204,7 +204,7 @@ namespace EntroBuilder
                         var typeContext = context.AddField(field);
                         var fieldType = field.FieldType;
 
-                        object value = BuildImpl(typeContext, fieldType);
+                        object value = BuildImpl(typeContext, fieldType, classInstanceCache);
 
                         field.SetValue(instance, value);
                     }
@@ -217,7 +217,7 @@ namespace EntroBuilder
 
             return instance;
         }
-        object BuildDictionaryImpl(TypeContext context, Type propertyType)
+        object BuildDictionaryImpl(TypeContext context, Type propertyType, Dictionary<Type, object> classInstanceCache)
         {
             Type keyType = propertyType.GetGenericArguments().First();
             Type valueType = propertyType.GetGenericArguments().Skip(1).Single();
@@ -231,12 +231,12 @@ namespace EntroBuilder
                 dictionaryType = propertyType;
             }
             var dictionaryInstance = (IDictionary)Activator.CreateInstance(dictionaryType);
-            var keyInstance = BuildImpl(context, keyType);
-            var valueInstance = BuildImpl(context, valueType);
+            var keyInstance = BuildImpl(context, keyType, classInstanceCache);
+            var valueInstance = BuildImpl(context, valueType, classInstanceCache);
             dictionaryInstance.Add(keyInstance, valueInstance);
             return dictionaryInstance;
         }
-        object BuildCollectionImpl(TypeContext context, Type propertyType)
+        object BuildCollectionImpl(TypeContext context, Type propertyType, Dictionary<Type, object> classInstanceCache)
         {
             Type elementType = propertyType.GetGenericArguments().Single();
             Type collectionType;
@@ -249,15 +249,15 @@ namespace EntroBuilder
                 collectionType = propertyType;
             }
             var instance = (IList)Activator.CreateInstance(collectionType);
-            var item = BuildImpl(context, elementType);
+            var item = BuildImpl(context, elementType, classInstanceCache);
             instance.Add(item);
             return instance;
         }
-        object BuildArrayImpl(TypeContext context, Type propertyType)
+        object BuildArrayImpl(TypeContext context, Type propertyType, Dictionary<Type, object> classInstanceCache)
         {
             var elementType = propertyType.GetElementType();
             var instance = Array.CreateInstance(elementType, 1);
-            var item = BuildImpl(context, elementType);
+            var item = BuildImpl(context, elementType, classInstanceCache);
             instance.SetValue(item, 0);
             return instance;
         }
