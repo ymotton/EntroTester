@@ -49,6 +49,7 @@
     <Compile Include="Generators\CustomGenerator.cs" />
     <Compile Include="Generators\DateTimeGenerator.cs" />
     <Compile Include="Generators\DecimalGenerator.cs" />
+    <Compile Include="Generators\DateTimeRangeGenerators.cs" />
     <Compile Include="Generators\DecimalRangeGenerator.cs" />
     <Compile Include="Generators\DoubleGenerator.cs" />
     <Compile Include="Generators\FloatRangeGenerator.cs" />

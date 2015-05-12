@@ -219,5 +219,17 @@ namespace EntroTester.Tests.EntroBuilder
             var items = generator.AsEnumerable(_rnd).Take(100).ToList();
             Assert.IsTrue(items.All(i => i >= 0));
         }
+
+        [TestMethod]
+        public void Next_DateTimeRange_ProducesValuesBetweenTwoDates()
+        {
+            var from = new DateTime(2014, 6, 1);
+            var to = new DateTime(2015, 05, 31);
+
+            var generator = new DateTimeRangeGenerator(from, to);
+
+            var items = generator.AsEnumerable(_rnd).Take(100).ToList();
+            Assert.IsTrue(items.All(i => from <= i && i <= to));
+        }
     }
 }

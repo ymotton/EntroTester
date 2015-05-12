@@ -2,13 +2,13 @@
 <package >
   <metadata>
     <id>EntroBuilder</id>
-    <version>1.1.2</version>
+    <version>1.1.3</version>
     <title>EntroBuilder</title>
     <authors>Yannick Motton</authors>
     <owners>Yannick Motton</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Library to facilitate creation of object graphs for testing purposes</description>
-    <copyright>Copyright 2013</copyright>
+    <copyright>Copyright 2015</copyright>
     <tags>EntroBuilder Test</tags>
   </metadata>
 </package>

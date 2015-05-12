@@ -1,3 +1,5 @@
+using System;
+
 namespace EntroBuilder
 {
     public static class Any
@@ -68,6 +70,11 @@ namespace EntroBuilder
         public static IGenerator<decimal> ValueBetween(decimal minValue, decimal maxValue)
         {
             var generator = new DecimalRangeGenerator(minValue, maxValue);
+            return generator;
+        }
+        public static IGenerator<DateTime> ValueBetween(DateTime minValue, DateTime maxValue)
+        {
+            var generator = new DateTimeRangeGenerator(minValue, maxValue);
             return generator;
         }
     }
