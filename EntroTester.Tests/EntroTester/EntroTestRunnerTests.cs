@@ -15,7 +15,7 @@ namespace EntroTester.Tests
                        b.Property(c => c.Item1, Any.ValueBetween(-100, 100))
                         .Property(c => c.Item2, Any.ValueBetween(-100, 100)), 
                 SystemUnderTest.HaveAFailingBranch,
-                m => m == true,
+                (i, m) => m == true,
                 1000000);
         }
         
@@ -55,7 +55,7 @@ namespace EntroTester.Tests
                 (Builder<ParameterlessCtorTuple<string>> b) =>
                     b.Property(c => c.Item1, Any.ValueLike(@"(( |\t){1,2}[a-zA-Z0-9]{1,2}){1,2}")),
                 SystemUnderTest.ParsesWord,
-                r => r != null && r.Length > 0,
+                (t, r) => r != null && r.Length > 0,
                 10000);
         }
 

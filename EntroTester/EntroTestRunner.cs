@@ -7,13 +7,11 @@ namespace EntroTester
 {
     public class EntroTestRunner
     {
-        public static void Run<T, TResult>(Action<Builder<T>> configureBuilder, Func<T, TResult> when, Expression<Func<TResult, bool>> assertionExpression, int count)
-            where T : class, new()
+        public static void Run<T, TResult>(Action<Builder<T>> configureBuilder, Func<T, TResult> when, Expression<Func<T, TResult, bool>> assertionExpression, int count)
         {
             Run(configureBuilder, when, assertionExpression, count, Environment.TickCount);
         }
-        public static void Run<T, TResult>(Action<Builder<T>> configureBuilder, Func<T, TResult> when, Expression<Func<TResult, bool>> assertionExpression, int count, int seed)
-            where T : class, new()
+        public static void Run<T, TResult>(Action<Builder<T>> configureBuilder, Func<T, TResult> when, Expression<Func<T, TResult, bool>> assertionExpression, int count, int seed)
         {
             var builder = Builder.Create<T>(seed);
             configureBuilder(builder);
@@ -24,7 +22,7 @@ namespace EntroTester
             foreach (var item in items)
             {
                 var result = when(item);
-                if (!assertion(result))
+                if (!assertion(item, result))
                 {
                     // TODO: Shrink item value to minimal failing case
                     // Only makes sense for enumeration types
@@ -35,12 +33,10 @@ namespace EntroTester
         }
 
         public static void Run<T, TResult, TExpected>(Action<Builder<T>> configureBuilder, Func<T, TResult> when, ExpectedResult<TExpected> expectedResult, int count)
-            where T : class, new()
         {
             Run(configureBuilder, when, expectedResult, count, Environment.TickCount);
         }
         public static void Run<T, TResult, TExpected>(Action<Builder<T>> configureBuilder, Func<T, TResult> when, ExpectedResult<TExpected> expectedResult, int count, int seed)
-            where T : class, new()
         {
             var builder = Builder.Create<T>(seed);
             configureBuilder(builder); 
@@ -71,7 +67,6 @@ namespace EntroTester
         }
 
         public static T Replay<T>(Action<Builder<T>> configureBuilder, int seed, int iteration)
-            where T : class, new()
         {
             var builder = Builder.Create<T>(seed);
             configureBuilder(builder);
