@@ -49,6 +49,8 @@ namespace EntroTester.Tests
         {
             var builder = Builder
                 .Create<Root>()
+                .Property(a => a.AsciiString_RandomValue, new AsciiStringGenerator())
+                .Property(a => a.AsciiChar_RandomValue, new AsciiCharGenerator())
                 .Property(a => a.Byte_Value, Is.Value(ByteValue))
                 .Property(a => a.String_ValueIn, Any.ValueIn(PossibleStrings))
                 .Property(a => a.Integer_ValueIn, Any.ValueIn(PossibleIntegers))
@@ -109,7 +111,19 @@ namespace EntroTester.Tests
         [TestMethod]
         public void Build_ProducesRoot_WithRandomString()
         {
-            Assert.IsTrue(_roots.Select(r => r.String_RandomValue).All(s => !string.IsNullOrEmpty(s)));
+            Assert.IsTrue(_roots.Select(r => r.String_RandomValue).All(s => s != null));
+        }
+
+        [TestMethod]
+        public void Build_ProducesRoot_WithRandomAsciiString()
+        {
+            Assert.IsTrue(_roots.Select(r => r.AsciiString_RandomValue).All(s => s != null));
+        }
+
+        [TestMethod]
+        public void Build_ProducesRoot_WithRandomAsciiChar()
+        {
+            Assert.IsTrue(_roots.Select(r => r.AsciiChar_RandomValue).All(s => 0x20 <= s  && s <= 0x7e));
         }
 
         [TestMethod]
@@ -266,7 +280,7 @@ namespace EntroTester.Tests
         {
             var values = Builder.Create<string>().Take(100);
 
-            bool producesDifferentValues = values.GroupBy(i => i).Count() > 95;
+            bool producesDifferentValues = values.GroupBy(i => i).Count() > 50;
 
             Assert.IsTrue(producesDifferentValues);
         }
@@ -321,6 +335,8 @@ namespace EntroTester.Tests
             // Scalars are currently given a default random value, if no generation strategy is specified
             public Guid Id { get; set; }
             public string String_RandomValue { get; set; }
+            public string AsciiString_RandomValue { get; set; }
+            public char AsciiChar_RandomValue { get; set; }
 
             // Nullable properties have 50% chance to be null, 50% a random value
             public DateTime? Nullable_DateTime { get; set; }

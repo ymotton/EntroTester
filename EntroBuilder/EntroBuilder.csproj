@@ -45,6 +45,7 @@
     <Compile Include="EntroBuilder.cs" />
     <Compile Include="Generators\BoolGenerator.cs" />
     <Compile Include="Generators\ByteGenerator.cs" />
+    <Compile Include="Generators\AsciiCharGenerator.cs" />
     <Compile Include="Generators\CharGenerator.cs" />
     <Compile Include="Generators\CustomGenerator.cs" />
     <Compile Include="Generators\DateTimeGenerator.cs" />
@@ -68,6 +69,7 @@
     <Compile Include="Generators\SByteGenerator.cs" />
     <Compile Include="Generators\ScalarGenerator.cs" />
     <Compile Include="Generators\SequenceGenerator.cs" />
+    <Compile Include="Generators\AsciiStringGenerator.cs" />
     <Compile Include="Generators\StringGenerator.cs" />
     <Compile Include="Is.cs" />
     <Compile Include="Maybe.cs" />
