@@ -34,8 +34,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="EntroBuilder, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\EntroBuilder.1.1.0\lib\net40\EntroBuilder.dll</HintPath>
+      <HintPath>..\packages\EntroBuilder.1.1.5\lib\net40\EntroBuilder.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Fare, Version=1.0.4857.16365, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -58,7 +58,9 @@
     <Compile Include="TypedResult.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="EntroTester.nuspec" />
+    <None Include="EntroTester.nuspec">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
