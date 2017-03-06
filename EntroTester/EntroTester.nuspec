@@ -10,8 +10,8 @@
     <description>Library to facilitate automated blackbox testing to discover unhandeled branches</description>
     <copyright>Copyright 2017</copyright>
     <tags>EntroTester Test</tags>
+    <dependencies>
+      <dependency id="EntroBuilder" version="1.1.5" />
+    </dependencies>
   </metadata>
-  <dependencies>
-    <dependency id="EntroBuilder" version="1.1.5" />
-  </dependencies>
 </package>
