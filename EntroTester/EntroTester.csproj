@@ -58,15 +58,12 @@
     <Compile Include="TypedResult.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="EntroTester.nuspec">
-      <SubType>Designer</SubType>
-    </None>
+    <None Include="nuget\EntroTester.nuspec" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>
-    </PostBuildEvent>
+    <PostBuildEvent>copy $(TargetDir)EntroTester.* $(ProjectDir)\nuget\lib\net40\</PostBuildEvent>
   </PropertyGroup>
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

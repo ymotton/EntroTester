@@ -2,13 +2,16 @@
 <package >
   <metadata>
     <id>EntroBuilder</id>
-    <version>1.1.5</version>
+    <version>1.1.6</version>
     <title>EntroBuilder</title>
     <authors>Yannick Motton</authors>
     <owners>Yannick Motton</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Library to facilitate creation of object graphs for testing purposes</description>
-    <copyright>Copyright 2016</copyright>
+    <copyright>Copyright 2017</copyright>
     <tags>EntroBuilder Test</tags>
+	<dependencies>
+      <dependency id="Fare" version="1.0.3" />
+    </dependencies>
   </metadata>
 </package>
