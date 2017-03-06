@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -160,50 +161,63 @@ namespace EntroTester.ObjectDumper
             if (!properties.Any() && !fields.Any())
                 return;
 
-            writer.WriteLine(string.Format(CultureInfo.InvariantCulture, "{0}{{", indentation));
-            if (properties.Any())
+            IEnumerable enumerable = value as IEnumerable;
+            if (enumerable != null)
             {
-                writer.WriteLine(string.Format(CultureInfo.InvariantCulture, "{0}   properties {{", indentation));
-                foreach (PropertyInfo pi in properties)
+                int i = 0;
+                foreach (var item in enumerable)
                 {
-                    try
-                    {
-                        object propertyValue = pi.GetValue(value, null);
-                        InternalDump(indentationLevel + 2, pi.Name, propertyValue, writer, idGenerator, true, options);
-                    }
-                    catch (TargetInvocationException ex)
-                    {
-                        InternalDump(indentationLevel + 2, pi.Name, ex, writer, idGenerator, false, options);
-                    }
-                    catch (ArgumentException ex)
-                    {
-                        InternalDump(indentationLevel + 2, pi.Name, ex, writer, idGenerator, false, options);
-                    }
-                    catch (RemotingException ex)
-                    {
-                        InternalDump(indentationLevel + 2, pi.Name, ex, writer, idGenerator, false, options);
-                    }
+                    InternalDump(indentationLevel + 2, $"[{i}]", item, writer, idGenerator, true, options);
+                    i++;
                 }
-                writer.WriteLine(string.Format(CultureInfo.InvariantCulture, "{0}   }}", indentation));
             }
-            if (fields.Any())
+            else
             {
-                writer.WriteLine(string.Format(CultureInfo.InvariantCulture, "{0}   fields {{", indentation));
-                foreach (FieldInfo field in fields)
+                writer.WriteLine(string.Format(CultureInfo.InvariantCulture, "{0}{{", indentation));
+                if (properties.Any())
                 {
-                    try
+                    writer.WriteLine(string.Format(CultureInfo.InvariantCulture, "{0}   properties {{", indentation));
+                    foreach (PropertyInfo pi in properties)
                     {
-                        object fieldValue = field.GetValue(value);
-                        InternalDump(indentationLevel + 2, field.Name, fieldValue, writer, idGenerator, true, options);
+                        try
+                        {
+                            object propertyValue = pi.GetValue(value, null);
+                            InternalDump(indentationLevel + 2, pi.Name, propertyValue, writer, idGenerator, true, options);
+                        }
+                        catch (TargetInvocationException ex)
+                        {
+                            InternalDump(indentationLevel + 2, pi.Name, ex, writer, idGenerator, false, options);
+                        }
+                        catch (ArgumentException ex)
+                        {
+                            InternalDump(indentationLevel + 2, pi.Name, ex, writer, idGenerator, false, options);
+                        }
+                        catch (RemotingException ex)
+                        {
+                            InternalDump(indentationLevel + 2, pi.Name, ex, writer, idGenerator, false, options);
+                        }
                     }
-                    catch (TargetInvocationException ex)
-                    {
-                        InternalDump(indentationLevel + 2, field.Name, ex, writer, idGenerator, false, options);
-                    }
+                    writer.WriteLine(string.Format(CultureInfo.InvariantCulture, "{0}   }}", indentation));
                 }
-                writer.WriteLine(string.Format(CultureInfo.InvariantCulture, "{0}   }}", indentation));
+                if (fields.Any())
+                {
+                    writer.WriteLine(string.Format(CultureInfo.InvariantCulture, "{0}   fields {{", indentation));
+                    foreach (FieldInfo field in fields)
+                    {
+                        try
+                        {
+                            object fieldValue = field.GetValue(value);
+                            InternalDump(indentationLevel + 2, field.Name, fieldValue, writer, idGenerator, true, options);
+                        }
+                        catch (TargetInvocationException ex)
+                        {
+                            InternalDump(indentationLevel + 2, field.Name, ex, writer, idGenerator, false, options);
+                        }
+                    }
+                    writer.WriteLine(string.Format(CultureInfo.InvariantCulture, "{0}   }}", indentation));
+                }
+                writer.WriteLine(string.Format(CultureInfo.InvariantCulture, "{0}}}", indentation));
             }
-            writer.WriteLine(string.Format(CultureInfo.InvariantCulture, "{0}}}", indentation));
         }
     }
     internal static class ObjectDumperExtensions
