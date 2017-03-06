@@ -1,4 +1,5 @@
 using System;
+using EntroTester.ObjectDumper;
 
 namespace EntroTester
 {
@@ -14,8 +15,8 @@ namespace EntroTester
                 expectedResult,
                 seed, 
                 iteration,
-                value.ToJsonOrToString(),
-                result.ToJsonOrToString());
+                value.DumpToString("value"),
+                result.DumpToString("result"));
             return new ExpectedResultException(message);
         }
     }

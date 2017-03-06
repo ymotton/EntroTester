@@ -1,4 +1,7 @@
-﻿using EntroBuilder;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using EntroBuilder;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace EntroTester.Tests
@@ -59,6 +62,17 @@ namespace EntroTester.Tests
                 10000);
         }
 
+        [TestMethod]
+        [ExpectedException(typeof(AssertionException))]
+        public void Run4()
+        {
+            EntroTestRunner.Run(
+                (Builder<List<int>> b) => { },
+                SystemUnderTest.Squares,
+                (ts, rs) => rs.Zip(ts, (r, t) => (Math.Sqrt(r.Square) - t) < 1e-5).All(x => x),
+                10000);
+        }
+
         class ParameterlessCtorTuple<T1>
         {
             public T1 Item1 { get; set; }
@@ -99,6 +113,16 @@ namespace EntroTester.Tests
             {
                 string firstWord = argument.Item1.Split(' ')[0];
                 return firstWord;
+            }
+
+            public class Container
+            {
+                public int Square { get; set; }
+            }
+
+            public static List<Container> Squares(List<int> values)
+            {
+                return values.Select(x => new Container {Square = x*x}).ToList();
             }
         }
     }

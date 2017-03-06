@@ -1,5 +1,6 @@
 using System;
 using System.Linq.Expressions;
+using EntroTester.ObjectDumper;
 
 namespace EntroTester
 {
@@ -15,8 +16,8 @@ namespace EntroTester
                 assertionExpression,
                 seed, 
                 iteration,
-                value.ToJsonOrToString(),
-                result.ToJsonOrToString());
+                value.DumpToString("value"),
+                result.DumpToString("result"));
             return new AssertionException(message);
         }
     }
