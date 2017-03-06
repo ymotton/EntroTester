@@ -64,160 +64,150 @@ namespace EntroTester.ObjectDumper
                 throw new ArgumentNullException("name");
             if (writer == null)
                 throw new ArgumentNullException("writer");
-            if (options == null)
-                throw new ArgumentNullException("options");
 
-            var idGenerator = new ObjectIDGenerator();
-            InternalDump(0, name, value, writer, idGenerator, true, options);
+            InternalDump(0, name, value, writer, new ObjectIDGenerator());
         }
 
-        private static void InternalDump(int indentationLevel, string name, object value, TextWriter writer, ObjectIDGenerator idGenerator, bool recursiveDump, DumpOptions options)
+        private static void InternalDump(int indentationLevel, string name, object value, TextWriter writer, ObjectIDGenerator idGenerator)
         {
             var indentation = new string(' ', indentationLevel * 3);
+            if (indentationLevel > 10)
+            {
+                return;
+            }
+
+            var prefix = string.IsNullOrWhiteSpace(name) ? "" : $"{name} = ";
 
             if (value == null)
             {
-                writer.WriteLine("{0}{1} = <null>", indentation, name);
+                writer.Write("{0}{1}null", indentation, prefix);
                 return;
             }
 
             Type type = value.GetType();
 
-            // figure out if this is an object that has already been dumped, or is currently being dumped
-            string keyRef = string.Empty;
-            string keyPrefix = string.Empty;
+            if (new []
+                {
+                    typeof (int), typeof(short), typeof(long), typeof(float), typeof(double), typeof(decimal), typeof(bool), typeof (byte),
+                    typeof (int?), typeof(short?), typeof(long?), typeof(float?), typeof(double?), typeof(decimal?), typeof(bool?), typeof (byte?),
+                }.Contains(type))
+            {
+                writer.Write("{0}{1}{2}", indentation, prefix, value);
+                return;
+            }
+            if (value is string)
+            {
+                writer.Write("{0}{1}\"{2}\"", indentation, prefix, value);
+                return;
+            }
+            if (typeof (DateTime) == type || typeof (DateTime?) == type)
+            {
+                var date = (DateTime?) value;
+                writer.Write("{0}{1}new DateTime({2})", indentation, prefix, date.Value.Ticks);
+            }
             if (!type.IsValueType)
             {
                 bool firstTime;
-                long key = idGenerator.GetId(value, out firstTime);
+                idGenerator.GetId(value, out firstTime);
                 if (!firstTime)
-                    keyRef = string.Format(CultureInfo.InvariantCulture, " (see #{0})", key);
-                else
                 {
-                    keyPrefix = string.Format(CultureInfo.InvariantCulture, "#{0}: ", key);
+                    writer.Write("{0}{1}null", indentation, prefix);
+                    return;
                 }
             }
-
-            // work out how a simple dump of the value should be done
-            bool isString = value is string;
-            string typeName = value.GetType().FullName;
-            string formattedValue = value.ToString();
-
-            var exception = value as Exception;
-            if (exception != null)
+            if (value is Exception)
             {
-                formattedValue = exception.GetType().Name + ": " + exception.Message;
+                var exception = value as Exception;
+                writer.Write("{0}{1}new {2}() {{ Message = \"{3}\" }}", indentation, prefix, type.Name, exception.Message);
+                return;
             }
 
-            if (formattedValue == typeName)
-                formattedValue = string.Empty;
-            else
+            IEnumerable enumerable = value as IEnumerable;
+            if (enumerable != null)
             {
-                // escape tabs and line feeds
-                formattedValue = formattedValue.Replace("\t", "\\t").Replace("\n", "\\n").Replace("\r", "\\r");
+                var collectionTypeName = GetCollectionType(type);
+                if (!collectionTypeName.EndsWith("[]"))
+                {
+                    collectionTypeName += "()";
+                }
 
-                // chop at 80 characters
-                int length = formattedValue.Length;
-                if (length > 80)
-                    formattedValue = formattedValue.Substring(0, 80);
-                if (isString)
-                    formattedValue = string.Format(CultureInfo.InvariantCulture, "\"{0}\"", formattedValue);
-                if (length > 80)
-                    formattedValue += " (+" + (length - 80) + " chars)";
-                formattedValue = " = " + formattedValue;
+                writer.WriteLine("{0}{1}new {2}", indentation, prefix, collectionTypeName);
+                writer.WriteLine("{0}{{", indentation);
+                int i = 0;
+                foreach (var item in enumerable)
+                {
+                    InternalDump(indentationLevel + 2, $"", item, writer, idGenerator);
+                    writer.WriteLine(",");
+                    i++;
+                }
+                writer.Write("{0}}}", indentation);
+                return;
             }
 
-            writer.WriteLine("{0}{1}{2}{3} [{4}]{5}", indentation, keyPrefix, name, formattedValue, value.GetType(), keyRef);
-
-            // Avoid dumping objects we've already dumped, or is already in the process of dumping
-            if (keyRef.Length > 0)
-                return;
-
-            // don't dump strings, we already got at around 80 characters of those dumped
-            if (isString)
-                return;
-
-            // don't dump value-types in the System namespace
-            if (type.IsValueType && type.FullName == "System." + type.Name)
-                return;
-
-            // Avoid certain types that will result in endless recursion
-            if (type.FullName == "System.Reflection." + type.Name)
-                return;
-
-            if (value is System.Security.Principal.SecurityIdentifier)
-                return;
-
-            if (!recursiveDump)
-                return;
+            writer.Write("{0}{1}new {2}()", indentation, prefix, value.GetType().Name);
 
             PropertyInfo[] properties =
                 (from property in type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
                  where property.GetIndexParameters().Length == 0
                        && property.CanRead
                  select property).ToArray();
-            IEnumerable<FieldInfo> fields = options.NoFields ? Enumerable.Empty<FieldInfo>() : type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
 
-            if (!properties.Any() && !fields.Any())
+            if (!properties.Any())
                 return;
+           
+            writer.WriteLine(string.Format(CultureInfo.InvariantCulture, "\n{0}{{", indentation));
+            if (properties.Any())
+            {
+                foreach (PropertyInfo pi in properties)
+                {
+                    try
+                    {
+                        object propertyValue = pi.GetValue(value, null);
+                        InternalDump(indentationLevel + 2, pi.Name, propertyValue, writer, idGenerator);
+                    }
+                    catch (TargetInvocationException ex)
+                    {
+                        InternalDump(indentationLevel + 2, pi.Name, ex, writer, idGenerator);
+                    }
+                    catch (ArgumentException ex)
+                    {
+                        InternalDump(indentationLevel + 2, pi.Name, ex, writer, idGenerator);
+                    }
+                    catch (RemotingException ex)
+                    {
+                        InternalDump(indentationLevel + 2, pi.Name, ex, writer, idGenerator);
+                    }
+                    writer.WriteLine(",");
+                }
+            }
+            writer.Write(string.Format(CultureInfo.InvariantCulture, "{0}}}", indentation));
+        }
 
-            IEnumerable enumerable = value as IEnumerable;
-            if (enumerable != null)
+        static string GetCollectionType(Type type)
+        {
+            var types = new Stack<string>();
+            if (type.IsGenericType)
             {
-                int i = 0;
-                foreach (var item in enumerable)
+                var nonGenericType = type.GetGenericTypeDefinition().Name.TrimEnd('`','1');
+                if (nonGenericType == "IEnumerable")
                 {
-                    InternalDump(indentationLevel + 2, $"[{i}]", item, writer, idGenerator, true, options);
-                    i++;
+                    nonGenericType = "List";
                 }
+                types.Push(nonGenericType);
+                return GetCollectionType(types, type.GetGenericArguments().Single());
             }
-            else
+            return type.Name;
+        }
+
+        static string GetCollectionType(Stack<string> types, Type type)
+        {
+            if (type.IsGenericType)
             {
-                writer.WriteLine(string.Format(CultureInfo.InvariantCulture, "{0}{{", indentation));
-                if (properties.Any())
-                {
-                    writer.WriteLine(string.Format(CultureInfo.InvariantCulture, "{0}   properties {{", indentation));
-                    foreach (PropertyInfo pi in properties)
-                    {
-                        try
-                        {
-                            object propertyValue = pi.GetValue(value, null);
-                            InternalDump(indentationLevel + 2, pi.Name, propertyValue, writer, idGenerator, true, options);
-                        }
-                        catch (TargetInvocationException ex)
-                        {
-                            InternalDump(indentationLevel + 2, pi.Name, ex, writer, idGenerator, false, options);
-                        }
-                        catch (ArgumentException ex)
-                        {
-                            InternalDump(indentationLevel + 2, pi.Name, ex, writer, idGenerator, false, options);
-                        }
-                        catch (RemotingException ex)
-                        {
-                            InternalDump(indentationLevel + 2, pi.Name, ex, writer, idGenerator, false, options);
-                        }
-                    }
-                    writer.WriteLine(string.Format(CultureInfo.InvariantCulture, "{0}   }}", indentation));
-                }
-                if (fields.Any())
-                {
-                    writer.WriteLine(string.Format(CultureInfo.InvariantCulture, "{0}   fields {{", indentation));
-                    foreach (FieldInfo field in fields)
-                    {
-                        try
-                        {
-                            object fieldValue = field.GetValue(value);
-                            InternalDump(indentationLevel + 2, field.Name, fieldValue, writer, idGenerator, true, options);
-                        }
-                        catch (TargetInvocationException ex)
-                        {
-                            InternalDump(indentationLevel + 2, field.Name, ex, writer, idGenerator, false, options);
-                        }
-                    }
-                    writer.WriteLine(string.Format(CultureInfo.InvariantCulture, "{0}   }}", indentation));
-                }
-                writer.WriteLine(string.Format(CultureInfo.InvariantCulture, "{0}}}", indentation));
+                var nonGenericType = type.GetGenericTypeDefinition().Name.TrimEnd('`', '1');
+                types.Push(nonGenericType);
+                return GetCollectionType(types, type.GetGenericArguments().Single());
             }
+            return types.Aggregate(type.Name, (s, x) => $"{x}<{s}>");
         }
     }
     internal static class ObjectDumperExtensions
@@ -270,6 +260,7 @@ namespace EntroTester.ObjectDumper
                 throw new ArgumentNullException("options");
 
             Dumper.Dump(value, name, writer, options);
+            writer.WriteLine(";");
 
             return value;
         }
@@ -283,7 +274,7 @@ namespace EntroTester.ObjectDumper
         {
             if (value == null)
             {
-                return $"{name} = <null>";
+                return $"{name} = null";
             }
             using (var writer = new StringWriter(CultureInfo.InvariantCulture))
             {

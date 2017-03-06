@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using EntroTester.ObjectDumper;
 using EntroBuilder;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -31,12 +32,13 @@ namespace EntroTester.Tests.EntroTester
             public int Integer { get; set; }
             public List<int> Ints { get; set; }
         }
+
         [TestMethod]
-        public void Foo()
+        public void VerifyDumpToString()
         {
-            var parents = Builder.Create<List<Parent>>().Take(3);
+            var parents = Builder.Create<List<Parent>>().Take(3).ToList();
             var dumpToString = parents.DumpToString("parents");
-            Assert.AreEqual("", dumpToString);
+            Assert.IsNotNull(dumpToString);
         }
     }
 }
