@@ -26,17 +26,17 @@ namespace EntroTester
                 {
                     // TODO: Shrink item value to minimal failing case
                     // Only makes sense for enumeration types
-                    throw AssertionException.Create(assertionExpression, seed, i, item);
+                    throw AssertionException.Create(assertionExpression, seed, i, item, result);
                 }
                 i++;
             }
         }
 
-        public static void Run<T, TResult, TExpected>(Action<Builder<T>> configureBuilder, Func<T, TResult> when, ExpectedResult<TExpected> expectedResult, int count)
+        public static void Run<T, TExpected, TResult>(Action<Builder<T>> configureBuilder, Func<T, TResult> when, ExpectedResult<TExpected> expectedResult, int count)
         {
             Run(configureBuilder, when, expectedResult, count, Environment.TickCount);
         }
-        public static void Run<T, TResult, TExpected>(Action<Builder<T>> configureBuilder, Func<T, TResult> when, ExpectedResult<TExpected> expectedResult, int count, int seed)
+        public static void Run<T, TExpected, TResult>(Action<Builder<T>> configureBuilder, Func<T, TResult> when, ExpectedResult<TExpected> expectedResult, int count, int seed)
         {
             var builder = Builder.Create<T>(seed);
             configureBuilder(builder); 
@@ -60,7 +60,7 @@ namespace EntroTester
 
                 if (!expectedResult.IsValid(resultType, result))
                 {
-                    throw ExpectedResultException.Create(expectedResult, seed, i, item);
+                    throw ExpectedResultException.Create(expectedResult, seed, i, item, result);
                 }
                 i++;
             }
