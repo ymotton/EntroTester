@@ -3,6 +3,7 @@ using EntroBuilder;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Linq;
+using EntroBuilder.Generators;
 
 namespace EntroTester.Tests
 {
@@ -92,6 +93,7 @@ namespace EntroTester.Tests
         public void Build_WithReferenceType_ProducesSequences()
         {
             var instance = Builder.Create<ReferenceType>()
+                .Configure(new ListGenerator.Configuration { EmptyProbability = 0.0 })
                 .Take(10)
                 .ToList();
 
@@ -127,7 +129,7 @@ namespace EntroTester.Tests
         public void Build_WithComplexType_ProducesNullablePrimitives()
         {
             var instance = Builder.Create<ComplexType>()
-                                  .Take(10)
+                                  .Take(100)
                                   .ToList();
 
             Assert.IsTrue(instance.Any(t => t.NullableBool.HasValue));
@@ -184,6 +186,7 @@ namespace EntroTester.Tests
         public void Build_WithComplexType_ProducesSequences()
         {
             var instance = Builder.Create<ComplexType>()
+                .Configure(new ListGenerator.Configuration { EmptyProbability = 0.0 })
                 .Take(10)
                 .ToList();
 

@@ -54,6 +54,7 @@
     <Compile Include="EntroBuilder\DataTypeTests.cs" />
     <Compile Include="EntroBuilder\PossibleValueDistributionTests.cs" />
     <Compile Include="EntroBuilder\RangeGeneratorTests.cs" />
+    <Compile Include="EntroBuilder\ListGeneratorTests.cs" />
     <Compile Include="EntroTester\DumperTests.cs" />
     <Compile Include="EntroTester\EntroTestRunnerTests.cs">
       <SubType>Code</SubType>

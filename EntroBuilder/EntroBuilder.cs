@@ -5,6 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
+using EntroBuilder.Generators;
 
 namespace EntroBuilder
 {
@@ -90,6 +91,13 @@ namespace EntroBuilder
             var result = Property(propertyExpression, new SequenceGenerator<TProperty>(sequence));
             return result;
         }
+
+        ListGenerator.Configuration _listGeneratorConfiguration;
+        public Builder<T> Configure(ListGenerator.Configuration configuration)
+        {
+            _listGeneratorConfiguration = configuration;
+            return this;
+        }
         
         public T Build()
         {
@@ -137,13 +145,9 @@ namespace EntroBuilder
             {
                 instance = BuildDictionaryImpl(context, type, classInstanceCache);
             }
-            else if (type.IsSequence())
+            else if (type.IsSequence() || type.IsArray)
             {
                 instance = BuildCollectionImpl(context, type, classInstanceCache);
-            }
-            else if (type.IsArray)
-            {
-                instance = BuildArrayImpl(context, type, classInstanceCache);
             }
             else if (type.IsClass)
             {
@@ -238,28 +242,8 @@ namespace EntroBuilder
         }
         object BuildCollectionImpl(TypeContext context, Type propertyType, Dictionary<Type, object> classInstanceCache)
         {
-            Type elementType = propertyType.GetGenericArguments().Single();
-            Type collectionType;
-            if (propertyType.IsInterface)
-            {
-                collectionType = typeof(List<>).MakeGenericType(elementType);
-            }
-            else
-            {
-                collectionType = propertyType;
-            }
-            var instance = (IList)Activator.CreateInstance(collectionType);
-            var item = BuildImpl(context, elementType, classInstanceCache);
-            instance.Add(item);
-            return instance;
-        }
-        object BuildArrayImpl(TypeContext context, Type propertyType, Dictionary<Type, object> classInstanceCache)
-        {
-            var elementType = propertyType.GetElementType();
-            var instance = Array.CreateInstance(elementType, 1);
-            var item = BuildImpl(context, elementType, classInstanceCache);
-            instance.SetValue(item, 0);
-            return instance;
+            var generator = new ListGenerator(_listGeneratorConfiguration, propertyType, t => BuildImpl(context, t, classInstanceCache));
+            return generator.Next(_random);
         }
         object BuildCollectionForGeneratorImpl(Type propertyType, IGenerator generator)
         {

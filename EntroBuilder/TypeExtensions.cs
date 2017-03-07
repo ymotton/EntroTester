@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Security.Policy;
 using System.Text.RegularExpressions;
 
 namespace EntroBuilder
@@ -33,6 +34,13 @@ namespace EntroBuilder
         {
             bool isDictionary = type.ImplementsGenericInterface(typeof (IDictionary<,>));
             return isDictionary;
+        }
+
+        public static MethodInfo GetExplicitInterfaceMethod(this Type type, Type interfaceType, string method)
+        {
+            return  type.GetInterfaceMap(interfaceType)
+                .TargetMethods
+                .SingleOrDefault(x => x.Name == method);
         }
 
         public static PropertyInfo GetPropertyInfo<T, TProperty>(this Expression<Func<T, TProperty>> propertyExpression)

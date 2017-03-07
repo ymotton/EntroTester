@@ -62,6 +62,7 @@
     <Compile Include="Generators\Int32Generator.cs" />
     <Compile Include="Generators\Int64Generator.cs" />
     <Compile Include="Generators\IntegerRangeGenerator.cs" />
+    <Compile Include="Generators\ListGenerator.cs" />
     <Compile Include="Generators\NullableGenerator.cs" />
     <Compile Include="Generators\RandomExtensions.cs" />
     <Compile Include="Generators\RangeGenerator.cs" />
