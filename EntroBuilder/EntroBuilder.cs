@@ -119,7 +119,7 @@ namespace EntroBuilder
             return (T)BuildImpl(context, typeof(T), classInstanceCache);
         }
 
-        object BuildImpl(TypeContext context, Type type, Dictionary<Type, object> classInstanceCache)
+        object BuildImpl(TypeContext context, Type type, Dictionary<Type, object> classInstanceCache, bool generateNew = false)
         {
             object instance;
             IGenerator generator;
@@ -153,7 +153,7 @@ namespace EntroBuilder
             {
                 // The root object should only served from cache if we are in a nested part of the object graph
                 // This cache is used to reduce endless recursion
-                if (!classInstanceCache.TryGetValue(type, out instance))
+                if (generateNew || !classInstanceCache.TryGetValue(type, out instance))
                 {
                     if (type.IsAbstract)
                     {
@@ -242,7 +242,7 @@ namespace EntroBuilder
         }
         object BuildCollectionImpl(TypeContext context, Type propertyType, Dictionary<Type, object> classInstanceCache)
         {
-            var generator = new ListGenerator(_listGeneratorConfiguration, propertyType, t => BuildImpl(context, t, classInstanceCache));
+            var generator = new ListGenerator(_listGeneratorConfiguration, propertyType, t => BuildImpl(context, t, classInstanceCache, true));
             return generator.Next(_random);
         }
         object BuildCollectionForGeneratorImpl(Type propertyType, IGenerator generator)
