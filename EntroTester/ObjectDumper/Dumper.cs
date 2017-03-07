@@ -104,6 +104,7 @@ namespace EntroTester.ObjectDumper
             {
                 var date = (DateTime?) value;
                 writer.Write("{0}{1}new DateTime({2})", indentation, prefix, date.Value.Ticks);
+                return;
             }
             if (!type.IsValueType)
             {
