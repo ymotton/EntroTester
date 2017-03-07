@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>EntroTester</id>
-    <version>1.3.5</version>
+    <version>1.3.6</version>
     <title>EntroTester</title>
     <authors>Yannick Motton</authors>
     <owners>Yannick Motton</owners>
@@ -11,7 +11,7 @@
     <copyright>Copyright 2017</copyright>
     <tags>EntroTester Test</tags>
     <dependencies>
-      <dependency id="EntroBuilder" version="1.1.6" />
+      <dependency id="EntroBuilder" version="1.1.7" />
     </dependencies>
   </metadata>
 </package>
