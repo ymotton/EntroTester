@@ -79,6 +79,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="EntroBuilder.nuspec" />
+    <None Include="nuget\EntroBuilder.nuspec" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
