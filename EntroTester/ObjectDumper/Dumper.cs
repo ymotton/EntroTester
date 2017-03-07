@@ -71,14 +71,9 @@ namespace EntroTester.ObjectDumper
         private static void InternalDump(int indentationLevel, string name, object value, TextWriter writer, ObjectIDGenerator idGenerator)
         {
             var indentation = new string(' ', indentationLevel * 3);
-            if (indentationLevel > 10)
-            {
-                return;
-            }
-
             var prefix = string.IsNullOrWhiteSpace(name) ? "" : $"{name} = ";
 
-            if (value == null)
+            if (value == null || indentationLevel > 10)
             {
                 writer.Write("{0}{1}null", indentation, prefix);
                 return;
@@ -106,16 +101,22 @@ namespace EntroTester.ObjectDumper
                 writer.Write("{0}{1}new DateTime({2})", indentation, prefix, date.Value.Ticks);
                 return;
             }
-            if (!type.IsValueType)
+            if (typeof (Guid) == type || typeof (Guid?) == type)
             {
-                bool firstTime;
-                idGenerator.GetId(value, out firstTime);
-                if (!firstTime)
-                {
-                    writer.Write("{0}{1}null", indentation, prefix);
-                    return;
-                }
+                var guid = (Guid?) value;
+                writer.Write("{0}{1}new Guid(\"{2}\")", indentation, prefix, guid.Value);
+                return;
             }
+            //if (!type.IsValueType)
+            //{
+            //    bool firstTime;
+            //    idGenerator.GetId(value, out firstTime);
+            //    if (!firstTime)
+            //    {
+            //        writer.Write("{0}{1}null", indentation, prefix);
+            //        return;
+            //    }
+            //}
             if (value is Exception)
             {
                 var exception = value as Exception;

@@ -37,6 +37,8 @@ namespace EntroBuilder.Generators
 
         public ListGenerator(Configuration configuration, Type listType, Func<Type, object> elementFactory)
         {
+            _configuration = configuration;
+            _elementFactory = elementFactory;
             _elementType = typeof(object);
 
             if (listType.IsGenericType)
@@ -113,9 +115,6 @@ namespace EntroBuilder.Generators
                     };
                 }
             }
-       
-            _configuration = configuration;
-            _elementFactory = elementFactory;
         }
 
         private static Exception NotSupported(Type listType)

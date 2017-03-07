@@ -2,8 +2,6 @@
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
-using EntroBuilder;
 using EntroBuilder.Generators;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 

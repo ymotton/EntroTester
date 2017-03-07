@@ -199,6 +199,23 @@ namespace EntroTester.Tests
         }
 
         [TestMethod]
+        public void Build_WithComplexType_ProducesSequencesOfNonNullObjects()
+        {
+            var instance = Builder.Create<ReferenceType>()
+                .Configure(new ListGenerator.Configuration { EmptyProbability = 0.0 })
+                .Take(100)
+                .ToList();
+
+            var totalChildren = instance.Sum(x => x.ChildReferenceTypes.Count);
+            var totalNonNullChildren = instance.Sum(x => x.ChildReferenceTypes.Count(c => c != null));
+            Assert.IsTrue(totalNonNullChildren / totalChildren > 0.8);
+
+            var totalGrandChildren = instance.Sum(x => x.ChildReferenceTypes.SelectMany(c => c.GrandChildReferenceTypes).Count());
+            var totalNonNullGrandChildren = instance.Sum(x => x.ChildReferenceTypes.SelectMany(c => c.GrandChildReferenceTypes).Count(c => c != null));
+            Assert.IsTrue(totalNonNullGrandChildren / totalGrandChildren > 0.8);
+        }
+
+        [TestMethod]
         public void Build_WithPrivateDefaultCtor_ProducesInstance()
         {
             var instance = Builder.Create<ClassWithPrivateDefaultCtor>()
@@ -291,8 +308,20 @@ namespace EntroTester.Tests
             public ICollection<Guid> ICollection { get; set; }
             public IList<Guid> IList { get; set; }
             public List<Guid> List { get; set; }
+            public List<ChildReferenceType> ChildReferenceTypes { get; set; }
             public Guid[] Array { get; set; }
             public Dictionary<int, string> Dictionary { get; set; } 
+        }
+
+        public class ChildReferenceType
+        {
+            public string Value { get; set; }
+            public List<GrandChildReferenceType> GrandChildReferenceTypes { get; set; }
+        }
+
+        public class GrandChildReferenceType
+        {
+            public string Value { get; set; }
         }
         struct ComplexType
         {
