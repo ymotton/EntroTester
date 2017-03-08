@@ -73,7 +73,7 @@ namespace EntroTester.ObjectDumper
             var indentation = new string(' ', indentationLevel * 3);
             var prefix = string.IsNullOrWhiteSpace(name) ? "" : $"{name} = ";
 
-            if (value == null || indentationLevel > 10)
+            if (value == null || indentationLevel > 18)
             {
                 writer.Write("{0}{1}null", indentation, prefix);
                 return;
@@ -120,7 +120,7 @@ namespace EntroTester.ObjectDumper
             if (value is Exception)
             {
                 var exception = value as Exception;
-                writer.Write("{0}{1}new {2}() {{ Message = \"{3}\" }}", indentation, prefix, type.Name, exception.Message);
+                writer.Write("{0}{1}new {2}() {{ Message = \"{3}\" }}", indentation, prefix, type.FullName.Replace("+", "."), exception.Message);
                 return;
             }
 
@@ -146,7 +146,7 @@ namespace EntroTester.ObjectDumper
                 return;
             }
 
-            writer.Write("{0}{1}new {2}()", indentation, prefix, value.GetType().Name);
+            writer.Write("{0}{1}new {2}()", indentation, prefix, value.GetType().FullName.Replace("+", "."));
 
             PropertyInfo[] properties =
                 (from property in type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
@@ -209,7 +209,7 @@ namespace EntroTester.ObjectDumper
                 types.Push(nonGenericType);
                 return GetCollectionType(types, type.GetGenericArguments().Single());
             }
-            return types.Aggregate(type.Name, (s, x) => $"{x}<{s}>");
+            return types.Aggregate(type.FullName.Replace("+", "."), (s, x) => $"{x}<{s}>");
         }
     }
     internal static class ObjectDumperExtensions
