@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using EntroBuilder;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -21,7 +19,7 @@ namespace EntroTester.Tests.EntroBuilder
         }
 
         [TestMethod]
-        public void Build_WithPrivatePropertySetterOnBase_ProducesValue()
+        public void Property_WithSelectManySelector_Works()
         {
             var instance = Builder.Create<Parent>()
                 .Property(x => x.Children.SelectMany(c => c.Values), Is.Value("DUMMY"))
