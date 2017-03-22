@@ -16,6 +16,7 @@ namespace EntroTester.Tests.EntroBuilder
         class Child
         {
             public List<string> Values { get; set; }
+            public int[] Ints { get; set; }
         }
 
         [TestMethod]
@@ -30,6 +31,20 @@ namespace EntroTester.Tests.EntroBuilder
             Assert.IsNotNull(instance.Children.First());
             Assert.IsNotNull(instance.Children.First().Values);
             Assert.AreEqual("DUMMY", instance.Children.First().Values.First());
+        }
+
+        [TestMethod]
+        public void Property_WithSelectManySelectorOfArray_Works()
+        {
+            var instance = Builder.Create<Parent>()
+                .Property(x => x.Children.SelectMany(c => c.Ints), Is.Value(1))
+                .Build();
+
+            Assert.IsNotNull(instance);
+            Assert.IsNotNull(instance.Children);
+            Assert.IsNotNull(instance.Children.First());
+            Assert.IsNotNull(instance.Children.First().Ints);
+            Assert.AreEqual(1, instance.Children.First().Ints.First());
         }
     }
 }

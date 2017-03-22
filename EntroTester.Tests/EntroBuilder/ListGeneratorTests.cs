@@ -26,6 +26,19 @@ namespace EntroTester.Tests
         }
 
         [TestMethod]
+        public void Array_IsSupported()
+        {
+            var generator = new ListGenerator(
+                new ListGenerator.Configuration(),
+                typeof (int[]),
+                (t, r) => 1);
+
+            int[] instance = generator.Next(_rnd) as int[];
+
+            Assert.IsNotNull(instance);
+        }
+
+        [TestMethod]
         public void ICollectionOfT_IsSupported()
         {
             var generator = new ListGenerator(

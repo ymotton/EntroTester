@@ -249,7 +249,7 @@ namespace EntroBuilder
         {
             object instance;
 
-            var elementType = propertyType.GetGenericArguments().Single();
+            var elementType = propertyType.IsArray ? propertyType.GetElementType() : propertyType.GetGenericArguments().Single();
             var generatorType = generator.GetType();
             var collectionType = typeof(IEnumerable<>).MakeGenericType(elementType);
             var interfaceGeneratorType = typeof(IGenerator<>).MakeGenericType(collectionType);
@@ -267,7 +267,7 @@ namespace EntroBuilder
             }
             else if (typeof(IGenerator<>).MakeGenericType(elementType).IsAssignableFrom(generatorType))
             {
-                instance = new ListGenerator(_listGeneratorConfiguration, collectionType, (t, r) => generator.Next(r)).Next(_random);
+                instance = new ListGenerator(_listGeneratorConfiguration, propertyType, (t, r) => generator.Next(r)).Next(_random);
             }
             else
             {
