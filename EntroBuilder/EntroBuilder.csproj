@@ -47,6 +47,7 @@
     <Compile Include="Generators\ByteGenerator.cs" />
     <Compile Include="Generators\AsciiCharGenerator.cs" />
     <Compile Include="Generators\CharGenerator.cs" />
+    <Compile Include="Generators\CompoundGenerator.cs" />
     <Compile Include="Generators\CustomGenerator.cs" />
     <Compile Include="Generators\DateTimeGenerator.cs" />
     <Compile Include="Generators\DecimalGenerator.cs" />

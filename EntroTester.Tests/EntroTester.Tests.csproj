@@ -51,6 +51,7 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="EntroBuilder\CompoundGeneratorTests.cs" />
     <Compile Include="EntroBuilder\CustomGeneratorTests.cs" />
     <Compile Include="EntroBuilder\DataTypeTests.cs" />
     <Compile Include="EntroBuilder\PossibleValueDistributionTests.cs" />
