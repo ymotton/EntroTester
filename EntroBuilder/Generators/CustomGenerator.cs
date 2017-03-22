@@ -2,9 +2,13 @@
 
 namespace EntroBuilder
 {
-    public class CustomGenerator
+    public static class CustomGenerator
     {
         public static CustomGenerator<T> Create<T>(Func<T> generatorDelegate, DelegateGeneratorOptions options = DelegateGeneratorOptions.None)
+        {
+            return new CustomGenerator<T>(generatorDelegate, options);
+        }
+        public static CustomGenerator<T> Create<T>(Func<Random, T> generatorDelegate, DelegateGeneratorOptions options = DelegateGeneratorOptions.None)
         {
             return new CustomGenerator<T>(generatorDelegate, options);
         }
@@ -12,11 +16,12 @@ namespace EntroBuilder
 
     public class CustomGenerator<T> : IGenerator<T>
     {
-        readonly Func<T> _generatorDelegate;
+        readonly Func<Random, T> _generatorDelegate;
         Maybe<T> _cachedSequence;
-        public CustomGenerator(Func<T> generatorDelegate, DelegateGeneratorOptions options = DelegateGeneratorOptions.None)
+        public CustomGenerator(Func<T> generatorDelegate, DelegateGeneratorOptions options = DelegateGeneratorOptions.None) : this(r => generatorDelegate(), options) { }
+        public CustomGenerator(Func<Random, T> generatorDelegate, DelegateGeneratorOptions options = DelegateGeneratorOptions.None)
         {
-            _generatorDelegate = () =>
+            _generatorDelegate = random =>
             {
                 // If we're not supposed to cache, just clear it every time, so it gets recreated.
                 if (_cachedSequence == null || options == DelegateGeneratorOptions.None)
@@ -25,7 +30,7 @@ namespace EntroBuilder
                 }
                 if (!_cachedSequence.HasValue)
                 {
-                    _cachedSequence = new Maybe<T>(generatorDelegate());
+                    _cachedSequence = new Maybe<T>(generatorDelegate(random));
                 }
                 return _cachedSequence.Value;
             };
@@ -33,7 +38,7 @@ namespace EntroBuilder
 
         public T Next(Random random)
         {
-            return _generatorDelegate();
+            return _generatorDelegate(random);
         }
 
         object IGenerator.Next(Random random)
