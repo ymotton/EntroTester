@@ -242,7 +242,7 @@ namespace EntroBuilder
         }
         object BuildCollectionImpl(TypeContext context, Type propertyType, Dictionary<Type, object> classInstanceCache)
         {
-            var generator = new ListGenerator(_listGeneratorConfiguration, propertyType, t => BuildImpl(context, t, classInstanceCache, true));
+            var generator = new ListGenerator(_listGeneratorConfiguration, propertyType, (t, r) => BuildImpl(context, t, classInstanceCache, true));
             return generator.Next(_random);
         }
         object BuildCollectionForGeneratorImpl(Type propertyType, IGenerator generator)
@@ -251,7 +251,8 @@ namespace EntroBuilder
 
             var elementType = propertyType.GetGenericArguments().Single();
             var generatorType = generator.GetType();
-            var interfaceGeneratorType = typeof(IGenerator<>).MakeGenericType(typeof(IEnumerable<>).MakeGenericType(elementType));
+            var collectionType = typeof(IEnumerable<>).MakeGenericType(elementType);
+            var interfaceGeneratorType = typeof(IGenerator<>).MakeGenericType(collectionType);
             if (generatorType.ImplementsInterface(interfaceGeneratorType))
             {
                 var sequence = generator.Next(_random);
@@ -263,6 +264,10 @@ namespace EntroBuilder
                 {
                     instance = sequence;
                 }
+            }
+            else if (typeof(IGenerator<>).MakeGenericType(elementType).IsAssignableFrom(generatorType))
+            {
+                instance = new ListGenerator(_listGeneratorConfiguration, collectionType, (t, r) => generator.Next(r)).Next(_random);
             }
             else
             {

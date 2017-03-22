@@ -32,10 +32,10 @@ namespace EntroBuilder.Generators
         private readonly Configuration _configuration;
         private readonly Type _elementType;
         private readonly Func<int, IEnumerable> _collectionFactory;
-        private readonly Action<IEnumerable, object> _addToCollection;
-        private readonly Func<Type, object> _elementFactory;
+        private readonly Action<IEnumerable, object, Random> _addToCollection;
+        private readonly Func<Type, Random, object> _elementFactory;
 
-        public ListGenerator(Configuration configuration, Type listType, Func<Type, object> elementFactory)
+        public ListGenerator(Configuration configuration, Type listType, Func<Type, Random, object> elementFactory)
         {
             _configuration = configuration;
             _elementFactory = elementFactory;
@@ -62,9 +62,9 @@ namespace EntroBuilder.Generators
                 }
                 throw NotSupported(listType);
             };
-            _addToCollection = (list, item) =>
+            _addToCollection = (list, item, random) =>
             {
-                ((IList)list).Add(_elementFactory(_elementType));
+                ((IList)list).Add(_elementFactory(_elementType, random));
             };
 
             if (listType.IsArray)
@@ -76,7 +76,7 @@ namespace EntroBuilder.Generators
                     return instance;
                 };
                 int i = 0;
-                _addToCollection = (list, item) =>
+                _addToCollection = (list, item, random) =>
                 {
                     ((Array) list).SetValue(item, i);
                     i++;
@@ -90,9 +90,9 @@ namespace EntroBuilder.Generators
                     var concreteType = typeof(Stack<>).MakeGenericType(_elementType);
                     _collectionFactory = size => (IEnumerable) Activator.CreateInstance(concreteType);
                     var pushMethod = concreteType.GetMethod("Push");
-                    _addToCollection = (list, item) =>
+                    _addToCollection = (list, item, random) =>
                     {
-                        pushMethod.Invoke(list, new[] { _elementFactory(_elementType) });
+                        pushMethod.Invoke(list, new[] { item });
                     };
                 }
                 else if (genericTypeDefinition == typeof (ConcurrentBag<>))
@@ -100,18 +100,18 @@ namespace EntroBuilder.Generators
                     var concreteType = typeof(ConcurrentBag<>).MakeGenericType(_elementType);
                     _collectionFactory = size => (IEnumerable)Activator.CreateInstance(concreteType);
                     var pushMethod = concreteType.GetMethod("Add");
-                    _addToCollection = (list, item) =>
+                    _addToCollection = (list, item, random) =>
                     {
-                        pushMethod.Invoke(list, new[] { _elementFactory(_elementType) });
+                        pushMethod.Invoke(list, new[] { item });
                     };
                 }
                 else if ((!listType.IsAbstract && listType.IsClass) && genericTypeDefinition.ImplementsGenericInterface(typeof(ICollection<>)))
                 {
                     _collectionFactory = size => (IEnumerable)Activator.CreateInstance(listType);
                     var pushMethod = listType.GetMethod("Add");
-                    _addToCollection = (list, item) =>
+                    _addToCollection = (list, item, random) =>
                     {
-                        pushMethod.Invoke(list, new[] { _elementFactory(_elementType) });
+                        pushMethod.Invoke(list, new[] { item });
                     };
                 }
             }
@@ -132,7 +132,7 @@ namespace EntroBuilder.Generators
                 var list = _collectionFactory(size);
                 for (int i = 0; i < size; i++)
                 {
-                    _addToCollection(list, _elementFactory(_elementType));
+                    _addToCollection(list, _elementFactory(_elementType, random), random);
                 }
                 return list;
             }

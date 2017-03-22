@@ -50,6 +50,7 @@ namespace EntroBuilder
             return propertyInfo;
         }
         readonly static MethodInfo SelectMethodInfo = typeof(Enumerable).GetMethods(BindingFlags.Static | BindingFlags.Public).First(m => m.Name == "Select");
+        readonly static MethodInfo SelectManyMethodInfo = typeof(Enumerable).GetMethods(BindingFlags.Static | BindingFlags.Public).First(m => m.Name == "SelectMany");
         public static string GetPropertyPath<T, TProperty>(this Expression<Func<T, TProperty>> propertyExpression)
         {
             var lambdaBodyExpression = ((LambdaExpression)propertyExpression).Body;
@@ -70,7 +71,8 @@ namespace EntroBuilder
                 // Only accept Select at the end of the expression
                 // SelectMany would not make much sense
                 var methodCallExpression = (MethodCallExpression)lambdaBodyExpression;
-                if (methodCallExpression.Method.GetGenericMethodDefinition() != SelectMethodInfo)
+                var methodDefinition = methodCallExpression.Method.GetGenericMethodDefinition();
+                if (methodDefinition != SelectMethodInfo && methodDefinition != SelectManyMethodInfo)
                 {
                     var message = string.Format("Unsupported Method '{0}' in expression", methodCallExpression.Method);
                     throw new InvalidOperationException(message);

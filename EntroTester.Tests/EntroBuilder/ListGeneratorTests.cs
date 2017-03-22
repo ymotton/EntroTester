@@ -18,7 +18,7 @@ namespace EntroTester.Tests
             var generator = new ListGenerator(
                 new ListGenerator.Configuration(),
                 typeof (IEnumerable<int>),
-                t => 1);
+                (t, r) => 1);
 
             IEnumerable<int> instance = generator.Next(_rnd) as IEnumerable<int>;
 
@@ -31,7 +31,7 @@ namespace EntroTester.Tests
             var generator = new ListGenerator(
                 new ListGenerator.Configuration(),
                 typeof (ICollection<int>),
-                t => 1);
+                (t, r) => 1);
 
             ICollection<int> instance = generator.Next(_rnd) as ICollection<int>;
 
@@ -44,7 +44,7 @@ namespace EntroTester.Tests
             var generator = new ListGenerator(
                 new ListGenerator.Configuration(),
                 typeof (IList<int>),
-                t => 1);
+                (t, r) => 1);
 
             IList<int> instance = generator.Next(_rnd) as IList<int>;
 
@@ -57,7 +57,7 @@ namespace EntroTester.Tests
             var generator = new ListGenerator(
                 new ListGenerator.Configuration(),
                 typeof(IEnumerable),
-                t => 1);
+                (t, r) => 1);
 
             IEnumerable instance = generator.Next(_rnd);
 
@@ -70,7 +70,7 @@ namespace EntroTester.Tests
             var generator = new ListGenerator(
                 new ListGenerator.Configuration(),
                 typeof(ICollection),
-                t => 1);
+                (t, r) => 1);
 
             ICollection instance = generator.Next(_rnd) as ICollection;
 
@@ -83,7 +83,7 @@ namespace EntroTester.Tests
             var generator = new ListGenerator(
                 new ListGenerator.Configuration(),
                 typeof (IList),
-                t => 1);
+                (t, r) => 1);
 
             IList instance = generator.Next(_rnd) as IList;
 
@@ -96,7 +96,7 @@ namespace EntroTester.Tests
             var generator = new ListGenerator(
                 new ListGenerator.Configuration(),
                 typeof(List<int>),
-                t => 1);
+                (t, r) => 1);
 
             List<int> instance = generator.Next(_rnd) as List<int>;
 
@@ -109,7 +109,7 @@ namespace EntroTester.Tests
             var generator = new ListGenerator(
                 new ListGenerator.Configuration(),
                 typeof(ConcurrentBag<int>),
-                t => 1);
+                (t, r) => 1);
 
             ConcurrentBag<int> instance = generator.Next(_rnd) as ConcurrentBag<int>;
 
@@ -122,7 +122,7 @@ namespace EntroTester.Tests
             var generator = new ListGenerator(
                 new ListGenerator.Configuration(),
                 typeof(Stack<int>),
-                t => 1);
+                (t, r) => 1);
 
             Stack<int> instance = generator.Next(_rnd) as Stack<int>;
 
@@ -135,7 +135,7 @@ namespace EntroTester.Tests
             var generator = new ListGenerator(
                 new ListGenerator.Configuration(),
                 typeof(HashSet<int>),
-                t => 1);
+                (t, r) => 1);
 
             HashSet<int> instance = generator.Next(_rnd) as HashSet<int>;
 
