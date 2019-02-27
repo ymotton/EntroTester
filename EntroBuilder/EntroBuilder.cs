@@ -101,21 +101,22 @@ namespace EntroBuilder
         
         public T Build()
         {
-            var item = BuildImpl();
+            var context = new TypeContext(typeof(T));
+            var item = BuildImpl(context);
             return item;
         }
         public IEnumerable<T> Take(int count)
         {
+            var context = new TypeContext(typeof(T));
             for (int i = 0; i < count; i++)
             {
-                yield return Build();
+                yield return BuildImpl(context);
             }
         }
 
-        T BuildImpl()
+        T BuildImpl(TypeContext context)
         {
             var classInstanceCache = new Dictionary<Type, object>();
-            var context = new TypeContext(typeof(T));
             return (T)BuildImpl(context, typeof(T), classInstanceCache);
         }
 
@@ -141,21 +142,21 @@ namespace EntroBuilder
                     instance = BuildCollectionForGeneratorImpl(type, generator);
                 }
             }
-            else if (type.IsDictionary())
+            else if (context.IsDictionary)
             {
                 instance = BuildDictionaryImpl(context, type, classInstanceCache);
             }
-            else if (type.IsSequence() || type.IsArray)
+            else if (context.IsSequence || context.IsArray)
             {
                 instance = BuildCollectionImpl(context, type, classInstanceCache);
             }
-            else if (type.IsClass)
+            else if (context.IsClass)
             {
                 // The root object should only served from cache if we are in a nested part of the object graph
                 // This cache is used to reduce endless recursion
                 if (generateNew || !classInstanceCache.TryGetValue(type, out instance))
                 {
-                    if (type.IsAbstract)
+                    if (context.IsAbstract)
                     {
                         return null;
                     }
@@ -163,24 +164,16 @@ namespace EntroBuilder
                     instance = Activator.CreateInstance(type, true);
                     classInstanceCache[type] = instance;
 
-                    var properties = type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                    foreach (var property in properties
-                        .Where(p => p.GetIndexParameters().Length == 0)) // Ignore indexed properties
+                    foreach (var property in context.Properties)
                     {
-                        var propertyOnDeclaringType = property.DeclaringType.GetProperty(property.Name);
-                        if (propertyOnDeclaringType == null) continue;
-
-                        var typeContext = context.AddProperty(propertyOnDeclaringType);
-                        if (propertyOnDeclaringType.GetSetMethod(true) == null) continue;
-
-                        var propertyType = propertyOnDeclaringType.PropertyType;
-                        object value = BuildImpl(typeContext, propertyType, classInstanceCache);
-
-                        propertyOnDeclaringType.SetValue(instance, value, new object[0]);
+                        var propertyContext = context.AddProperty(property);
+                        var propertyType = property.PropertyType;
+                        object value = BuildImpl(propertyContext, propertyType, classInstanceCache);
+                        propertyContext.SetValue(instance, value);
                     }
                 }
             }
-            else if (type.IsEnum)
+            else if (context.IsEnum)
             {
                 var sequenceGeneratorType = typeof(SequenceGenerator<>).MakeGenericType(type);
                 var rawPossibleValues = Enum.GetValues(type);
@@ -189,7 +182,7 @@ namespace EntroBuilder
                 For(type, generator);
                 instance = generator.Next(_random);
             }
-            else if (type.IsValueType)
+            else if (context.IsValueType)
             {
                 // In case the value type is nullable, don't reflect over its private members
                 // We only want to set its Value field.
@@ -242,7 +235,7 @@ namespace EntroBuilder
         }
         object BuildCollectionImpl(TypeContext context, Type propertyType, Dictionary<Type, object> classInstanceCache)
         {
-            var generator = new ListGenerator(_listGeneratorConfiguration, propertyType, (t, r) => BuildImpl(context, t, classInstanceCache, true));
+            var generator = new ListGenerator(_listGeneratorConfiguration, propertyType, (t, r) => BuildImpl(context.AddSequenceElement(t), t, classInstanceCache, true));
             return generator.Next(_random);
         }
         object BuildCollectionForGeneratorImpl(Type propertyType, IGenerator generator)
@@ -279,47 +272,91 @@ namespace EntroBuilder
 
         class TypeContext
         {
-            readonly string _baseType;
-            readonly List<string> _members;
+            readonly string _path;
+            readonly Dictionary<MemberInfo, TypeContext> _memberContexts;
+            readonly PropertyInfo _propertyInfo;
 
-            public TypeContext(Type type)
+            public readonly bool IsDictionary;
+            public readonly bool IsSequence;
+            public readonly bool IsArray;
+            public readonly bool IsClass;
+            public readonly bool IsEnum;
+            public readonly bool IsValueType;
+            public readonly bool IsAbstract;
+            public readonly PropertyInfo[] Properties;
+
+            public TypeContext(Type type) : this(type.Name, type) { }
+
+            TypeContext(TypeContext context, PropertyInfo propertyInfo)
+                : this(context._path + "." + propertyInfo.Name, propertyInfo.PropertyType)
             {
-                _baseType = type.Name;
-                _members = new List<string>();
+                var propertyOnDeclaringType = propertyInfo.DeclaringType?.GetProperty(propertyInfo.Name);
+                if (propertyOnDeclaringType == null) return;
+                if (propertyOnDeclaringType.GetSetMethod(true) == null) return;
+                _propertyInfo = propertyOnDeclaringType;
             }
-            private TypeContext(TypeContext context, PropertyInfo propertyInfo)
+            TypeContext(TypeContext context, FieldInfo fieldInfo)
+                : this(context._path + "." + fieldInfo.Name, fieldInfo.FieldType) { }
+            TypeContext(string path, Type type)
             {
-                _baseType = context._baseType;
-                _members = new List<string>(context._members);
-                _members.Add(propertyInfo.Name);
+                _path = path;
+                _memberContexts = new Dictionary<MemberInfo, TypeContext>();
+
+                IsDictionary = type.IsDictionary();
+                IsSequence = type.IsSequence();
+                IsArray = type.IsArray;
+                IsClass = type.IsClass;
+                IsEnum = type.IsEnum;
+                IsValueType = type.IsValueType;
+                IsAbstract = type.IsAbstract;
+                Properties = type
+                    .GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+                    .Where(p => p.GetIndexParameters().Length == 0) // Ignore indexed properties
+                    .ToArray();
             }
-            private TypeContext(TypeContext context, FieldInfo fieldInfo)
-            {
-                _baseType = context._baseType;
-                _members = new List<string>(context._members);
-                _members.Add(fieldInfo.Name);
-            }
+
             public bool IsRoot()
             {
-                return !_members.Any();
+                return !_path.Contains(".");
             }
             public TypeContext AddProperty(PropertyInfo propertyInfo)
             {
-                return new TypeContext(this, propertyInfo);
+                if (!_memberContexts.TryGetValue(propertyInfo, out var memberContext))
+                {
+                    memberContext = new TypeContext(this, propertyInfo);
+                    _memberContexts.Add(propertyInfo, memberContext);
+                }
+                return memberContext;
             } 
             public TypeContext AddField(FieldInfo fieldInfo)
             {
-                return new TypeContext(this, fieldInfo);
+                if (!_memberContexts.TryGetValue(fieldInfo, out var memberContext))
+                {
+                    memberContext = new TypeContext(this, fieldInfo);
+                    _memberContexts.Add(fieldInfo, memberContext);
+                }
+                return memberContext;
             }
+
+            TypeContext _sequenceElementContext;
+            public TypeContext AddSequenceElement(Type type)
+            {
+                if (_sequenceElementContext == null)
+                {
+                    _sequenceElementContext = new TypeContext(_path, type);
+                }
+                return _sequenceElementContext;
+            }
+
             public override string ToString()
             {
-                var sb = new StringBuilder();
-                sb.Append(_baseType);
-                foreach (var member in _members)
-                {
-                    sb.AppendFormat(".{0}", member);
-                }
-                return sb.ToString();
+                return _path;
+            }
+
+            public void SetValue(object instance, object value)
+            {
+                if (_propertyInfo == null) return;
+                _propertyInfo.SetValue(instance, value, new object[0]);
             }
         }
     }

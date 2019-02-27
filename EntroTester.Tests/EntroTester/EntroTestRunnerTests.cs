@@ -30,8 +30,8 @@ namespace EntroTester.Tests
                     (Builder<ParameterlessCtorTuple<int, int>> b) =>
                            b.Property(c => c.Item1, Any.ValueBetween(-100, 100))
                             .Property(c => c.Item2, Any.ValueBetween(-100, 100)),
-                    5889973,
-                    10859);
+                    55768296,
+                    199627);
 
             var result = SystemUnderTest.HaveAFailingBranch(faulty);
             Assert.AreEqual(false, result);

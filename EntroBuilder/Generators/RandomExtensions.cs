@@ -6,29 +6,29 @@ namespace EntroBuilder
     {
         public static sbyte NextBetween(this Random random, sbyte min, sbyte max)
         {
-            return (sbyte)NextBetween(random, (ulong)min, (ulong)max);
+            return (sbyte)NextBetween(random, (int)min, (int)max);
         }
         public static byte NextBetween(this Random random, byte min, byte max)
         {
-            return (byte)NextBetween(random, (ulong)min, (ulong)max);
+            return (byte)NextBetween(random, (int)min, (int)max);
         }
 
         public static short NextBetween(this Random random, short min, short max)
         {
-            return (short)NextBetween(random, (ulong)min, (ulong)max);
+            return (short)NextBetween(random, (int)min, (int)max);
         }
         public static ushort NextBetween(this Random random, ushort min, ushort max)
         {
-            return (ushort)NextBetween(random, (ulong)min, (ulong)max);
+            return (ushort)NextBetween(random, (int)min, (int)max);
         }
 
         public static int NextBetween(this Random random, int min, int max)
         {
-            return (int)NextBetween(random, (ulong)min, (ulong)max);
+            return random.Next(min, max + 1);
         }
         public static uint NextBetween(this Random random, uint min, uint max)
         {
-            return (uint)NextBetween(random, (ulong)min, (ulong)max);
+            return (uint)NextBetween(random, (int)min, (int)max);
         }
 
         public static long NextBetween(this Random random, long min, long max)

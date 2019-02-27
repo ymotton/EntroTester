@@ -34,8 +34,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="EntroBuilder, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\EntroBuilder.1.1.5\lib\net40\EntroBuilder.dll</HintPath>
-      <Private>True</Private>
+      <HintPath>..\packages\EntroBuilder.1.1.10\lib\net40\EntroBuilder.dll</HintPath>
     </Reference>
     <Reference Include="Fare, Version=1.0.4857.16365, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -64,7 +63,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy $(TargetDir)EntroTester.* $(ProjectDir)\nuget\lib\net40\</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
