@@ -3,7 +3,6 @@ using EntroTester.ObjectDumper;
 
 namespace EntroTester
 {
-    [Serializable]
     public class ExpectedResultException : Exception
     {
         public ExpectedResultException(string message) : base(message) { }

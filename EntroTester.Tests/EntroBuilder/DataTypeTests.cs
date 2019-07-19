@@ -265,9 +265,9 @@ namespace EntroTester.Tests
             Assert.IsNotNull(instance);
             Assert.IsInstanceOfType(instance, typeof(DerivedClassForBaseWithPrivatePropertySetter));
             Assert.IsNotNull(instance.PropertyWithPrivateSetter);
-        }    
-    
-        class ReferenceType
+        }
+
+        public class ReferenceType
         {
             public char Char { get; set; }
             public bool Bool { get; set; }
@@ -323,7 +323,7 @@ namespace EntroTester.Tests
         {
             public string Value { get; set; }
         }
-        struct ComplexType
+        public struct ComplexType
         {
             public bool Bool;
             public short Short;
@@ -365,19 +365,19 @@ namespace EntroTester.Tests
             public Guid[] Array;
             public Dictionary<string, Guid> Dictionary { get; set; } 
         }
-        struct NestedComplexType
+        public struct NestedComplexType
         {
             public string String;
             public DateTime DateTime;
         }
-        enum MyEnum
+        public enum MyEnum
         {
             None = 0,
             One = 1,
             Two = 2,
             Max = int.MaxValue
         }
-        struct ComplexTypeWithPrivateMember
+        public struct ComplexTypeWithPrivateMember
         {
             private string String;
             public override string ToString()
@@ -385,7 +385,7 @@ namespace EntroTester.Tests
                 return String;
             }
         }
-        struct ComplexTypeWithPrivateReadOnlyMember
+        public struct ComplexTypeWithPrivateReadOnlyMember
         {
             private readonly string String;
             public override string ToString()
@@ -393,19 +393,19 @@ namespace EntroTester.Tests
                 return String;
             }
         }
-        class ClassWithPrivateDefaultCtor
+        public class ClassWithPrivateDefaultCtor
         {
             ClassWithPrivateDefaultCtor() { }
         }
-        class ClassWithNoDefaultCtor
+        public class ClassWithNoDefaultCtor
         {
             public ClassWithNoDefaultCtor(string required) { }
         }
-        abstract class BaseClassWithPrivatePropertySetter
+        public abstract class BaseClassWithPrivatePropertySetter
         {
             public string PropertyWithPrivateSetter { get; private set; }
         }
-        class DerivedClassForBaseWithPrivatePropertySetter : BaseClassWithPrivatePropertySetter
+        public class DerivedClassForBaseWithPrivatePropertySetter : BaseClassWithPrivatePropertySetter
         {
         }
     }

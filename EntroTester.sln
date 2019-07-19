@@ -1,16 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.572
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntroTester", "EntroTester\EntroTester.csproj", "{C2074150-D327-4997-8D7E-69CB9A90F488}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntroTester.Tests", "EntroTester.Tests\EntroTester.Tests.csproj", "{CE6E5566-C470-42C1-ABBD-4FEFCB06B214}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{D896ADA5-26B5-4B39-BBA3-D22B0395C05E}"
-	ProjectSection(SolutionItems) = preProject
-		.nuget\NuGet.Config = .nuget\NuGet.Config
-		.nuget\NuGet.exe = .nuget\NuGet.exe
-		.nuget\NuGet.targets = .nuget\NuGet.targets
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntroBuilder", "EntroBuilder\EntroBuilder.csproj", "{B3BABA79-9872-4C86-8357-DF6FA046B987}"
 EndProject
@@ -35,5 +30,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {EB072D0A-C16A-45BF-8FE8-B9CC7171E7AC}
 	EndGlobalSection
 EndGlobal

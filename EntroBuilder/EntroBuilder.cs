@@ -160,7 +160,7 @@ namespace EntroBuilder
                     {
                         return null;
                     }
-                    
+
                     instance = Activator.CreateInstance(type, true);
                     classInstanceCache[type] = instance;
 
@@ -186,7 +186,7 @@ namespace EntroBuilder
             {
                 // In case the value type is nullable, don't reflect over its private members
                 // We only want to set its Value field.
-                if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+                if (type.IsGenericType() && type.GetGenericTypeDefinition() == typeof(Nullable<>))
                 {
                     var innerType = type.GetGenericArguments()[0];
                     instance = _random.Next(0, 2) == 1 ? BuildImpl(context, innerType, classInstanceCache) : null;
@@ -194,8 +194,7 @@ namespace EntroBuilder
                 else
                 {
                     instance = Activator.CreateInstance(type);
-                    
-                    var fields = type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                    var fields = type.GetTypeInfo().GetFields();
                     foreach (var field in fields)
                     {
                         var typeContext = context.AddField(field);
@@ -219,7 +218,7 @@ namespace EntroBuilder
             Type keyType = propertyType.GetGenericArguments().First();
             Type valueType = propertyType.GetGenericArguments().Skip(1).Single();
             Type dictionaryType;
-            if (propertyType.IsInterface)
+            if (propertyType.IsInterface())
             {
                 dictionaryType = typeof (Dictionary<,>).MakeGenericType(keyType, valueType);
             }
@@ -290,7 +289,7 @@ namespace EntroBuilder
             TypeContext(TypeContext context, PropertyInfo propertyInfo)
                 : this(context._path + "." + propertyInfo.Name, propertyInfo.PropertyType)
             {
-                var propertyOnDeclaringType = propertyInfo.DeclaringType?.GetProperty(propertyInfo.Name);
+                var propertyOnDeclaringType = propertyInfo.DeclaringType?.GetTypeInfo().GetProperty(propertyInfo.Name);
                 if (propertyOnDeclaringType == null) return;
                 if (propertyOnDeclaringType.GetSetMethod(true) == null) return;
                 _propertyInfo = propertyOnDeclaringType;
@@ -305,12 +304,13 @@ namespace EntroBuilder
                 IsDictionary = type.IsDictionary();
                 IsSequence = type.IsSequence();
                 IsArray = type.IsArray;
-                IsClass = type.IsClass;
-                IsEnum = type.IsEnum;
-                IsValueType = type.IsValueType;
-                IsAbstract = type.IsAbstract;
+                IsClass = type.IsClass();
+                IsEnum = type.IsEnum();
+                IsValueType = type.IsValueType();
+                IsAbstract = type.IsAbstract();
                 Properties = type
-                    .GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+                    .GetTypeInfo()
+                    .GetProperties()
                     .Where(p => p.GetIndexParameters().Length == 0) // Ignore indexed properties
                     .ToArray();
             }

@@ -41,7 +41,7 @@ namespace EntroBuilder.Generators
             _elementFactory = elementFactory;
             _elementType = typeof(object);
 
-            if (listType.IsGenericType)
+            if (listType.IsGenericType())
             {
                 if (listType.GetGenericArguments().Length == 1)
                 {
@@ -51,7 +51,7 @@ namespace EntroBuilder.Generators
 
             _collectionFactory = size =>
             {
-                if (listType.IsInterface)
+                if (listType.IsInterface())
                 {
                     var concreteType = typeof(List<>).MakeGenericType(_elementType);
                     return (IList)Activator.CreateInstance(concreteType);
@@ -82,7 +82,7 @@ namespace EntroBuilder.Generators
                     i++;
                 };
             }
-            else if (listType.IsGenericType)
+            else if (listType.IsGenericType())
             {
                 var genericTypeDefinition = listType.GetGenericTypeDefinition();
                 if (genericTypeDefinition == typeof (Stack<>))
@@ -105,7 +105,7 @@ namespace EntroBuilder.Generators
                         pushMethod.Invoke(list, new[] { item });
                     };
                 }
-                else if ((!listType.IsAbstract && listType.IsClass) && genericTypeDefinition.ImplementsGenericInterface(typeof(ICollection<>)))
+                else if ((!listType.IsAbstract() && listType.IsClass()) && genericTypeDefinition.ImplementsGenericInterface(typeof(ICollection<>)))
                 {
                     _collectionFactory = size => (IEnumerable)Activator.CreateInstance(listType);
                     var pushMethod = listType.GetMethod("Add");

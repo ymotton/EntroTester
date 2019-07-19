@@ -10,13 +10,13 @@ namespace EntroTester.Tests.EntroTester
     [TestClass]
     public class DumperTests
     {
-        class Parent
+        public class Parent
         {
             public List<Child> Children { get; set; }
             public string Foo { get; set; } 
         }
 
-        class Child
+        public class Child
         {
             public GrandChild1 GrandChild { get; set; }
             public List<GrandChild2> GrandChildren { get; set; }

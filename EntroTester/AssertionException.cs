@@ -4,7 +4,6 @@ using EntroTester.ObjectDumper;
 
 namespace EntroTester
 {
-    [Serializable]
     public class AssertionException : Exception
     {
         public AssertionException(string message) : base(message) { }

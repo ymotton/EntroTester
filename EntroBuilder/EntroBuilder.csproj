@@ -1,99 +1,22 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{B3BABA79-9872-4C86-8357-DF6FA046B987}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>EntroBuilder</RootNamespace>
-    <AssemblyName>EntroBuilder</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
-    <RestorePackages>true</RestorePackages>
-    <TargetFrameworkProfile />
+    <TargetFramework>netstandard1.6</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>1.2.0</Version>
+    <Authors>Yannick Motton</Authors>
+    <Description>Library to facilitate creation of object graphs for testing purposes</Description>
+    <PackageTags>EntroBuilder tests</PackageTags>
+    <Copyright>Copyright 2019</Copyright>
+    <PackageLicenseUrl>https://github.com/ymotton/EntroTester/blob/master/LICENSE.txt</PackageLicenseUrl>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
+
   <ItemGroup>
-    <Reference Include="Fare">
-      <HintPath>..\packages\Fare.1.0.0\lib\net35\Fare.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="Microsoft.CSharp" />
+    <PackageReference Include="Fare" Version="2.1.2" />
   </ItemGroup>
+
   <ItemGroup>
-    <Compile Include="Any.cs" />
-    <Compile Include="EntroBuilder.cs" />
-    <Compile Include="Generators\BoolGenerator.cs" />
-    <Compile Include="Generators\ByteGenerator.cs" />
-    <Compile Include="Generators\AsciiCharGenerator.cs" />
-    <Compile Include="Generators\CharGenerator.cs" />
-    <Compile Include="Generators\CompoundGenerator.cs" />
-    <Compile Include="Generators\CustomGenerator.cs" />
-    <Compile Include="Generators\DateTimeGenerator.cs" />
-    <Compile Include="Generators\DecimalGenerator.cs" />
-    <Compile Include="Generators\DateTimeRangeGenerators.cs" />
-    <Compile Include="Generators\DecimalRangeGenerator.cs" />
-    <Compile Include="Generators\DoubleGenerator.cs" />
-    <Compile Include="Generators\FloatRangeGenerator.cs" />
-    <Compile Include="Generators\FloatGenerator.cs" />
-    <Compile Include="Generators\GeneratorExtensions.cs" />
-    <Compile Include="Generators\GuidGenerator.cs" />
-    <Compile Include="Generators\IGenerator.cs" />
-    <Compile Include="Generators\Int16Generator.cs" />
-    <Compile Include="Generators\Int32Generator.cs" />
-    <Compile Include="Generators\Int64Generator.cs" />
-    <Compile Include="Generators\IntegerRangeGenerator.cs" />
-    <Compile Include="Generators\ListGenerator.cs" />
-    <Compile Include="Generators\NullableGenerator.cs" />
-    <Compile Include="Generators\RandomExtensions.cs" />
-    <Compile Include="Generators\RangeGenerator.cs" />
-    <Compile Include="Generators\RegexGenerator.cs" />
-    <Compile Include="Generators\SByteGenerator.cs" />
-    <Compile Include="Generators\ScalarGenerator.cs" />
-    <Compile Include="Generators\SequenceGenerator.cs" />
-    <Compile Include="Generators\AsciiStringGenerator.cs" />
-    <Compile Include="Generators\StringGenerator.cs" />
-    <Compile Include="Is.cs" />
-    <Compile Include="Maybe.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TypeExtensions.cs" />
+    <Folder Include="Properties\" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="nuget\EntroBuilder.nuspec" />
-    <None Include="packages.config">
-      <SubType>Designer</SubType>
-    </None>
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
-  <PropertyGroup>
-    <PostBuildEvent>copy $(TargetDir)EntroBuilder.* $(ProjectDir)\nuget\lib\net40\</PostBuildEvent>
-  </PropertyGroup>
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+
 </Project>

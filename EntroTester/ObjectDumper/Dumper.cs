@@ -6,8 +6,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.Remoting;
-using System.Runtime.Serialization;
 using System.Text;
 
 namespace EntroTester.ObjectDumper
@@ -26,13 +24,7 @@ namespace EntroTester.ObjectDumper
             // Do nothing here
         }
 
-        public override Encoding Encoding
-        {
-            get
-            {
-                return Encoding.Default;
-            }
-        }
+        public override Encoding Encoding => Encoding.UTF8;
 
         public override void Write(char value)
         {
@@ -65,10 +57,10 @@ namespace EntroTester.ObjectDumper
             if (writer == null)
                 throw new ArgumentNullException("writer");
 
-            InternalDump(0, name, value, writer, new ObjectIDGenerator());
+            InternalDump(0, name, value, writer);
         }
 
-        private static void InternalDump(int indentationLevel, string name, object value, TextWriter writer, ObjectIDGenerator idGenerator)
+        private static void InternalDump(int indentationLevel, string name, object value, TextWriter writer)
         {
             var indentation = new string(' ', indentationLevel * 3);
             var prefix = string.IsNullOrWhiteSpace(name) ? "" : $"{name} = ";
@@ -138,7 +130,7 @@ namespace EntroTester.ObjectDumper
                 int i = 0;
                 foreach (var item in enumerable)
                 {
-                    InternalDump(indentationLevel + 2, $"", item, writer, idGenerator);
+                    InternalDump(indentationLevel + 2, $"", item, writer);
                     writer.WriteLine(",");
                     i++;
                 }
@@ -149,7 +141,7 @@ namespace EntroTester.ObjectDumper
             writer.Write("{0}{1}new {2}()", indentation, prefix, value.GetType().FullName.Replace("+", "."));
 
             PropertyInfo[] properties =
-                (from property in type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                (from property in type.GetTypeInfo().GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
                  where property.GetIndexParameters().Length == 0
                        && property.CanRead
                  select property).ToArray();
@@ -165,19 +157,15 @@ namespace EntroTester.ObjectDumper
                     try
                     {
                         object propertyValue = pi.GetValue(value, null);
-                        InternalDump(indentationLevel + 2, pi.Name, propertyValue, writer, idGenerator);
+                        InternalDump(indentationLevel + 2, pi.Name, propertyValue, writer);
                     }
                     catch (TargetInvocationException ex)
                     {
-                        InternalDump(indentationLevel + 2, pi.Name, ex, writer, idGenerator);
+                        InternalDump(indentationLevel + 2, pi.Name, ex, writer);
                     }
                     catch (ArgumentException ex)
                     {
-                        InternalDump(indentationLevel + 2, pi.Name, ex, writer, idGenerator);
-                    }
-                    catch (RemotingException ex)
-                    {
-                        InternalDump(indentationLevel + 2, pi.Name, ex, writer, idGenerator);
+                        InternalDump(indentationLevel + 2, pi.Name, ex, writer);
                     }
                     writer.WriteLine(",");
                 }
@@ -188,7 +176,7 @@ namespace EntroTester.ObjectDumper
         static string GetCollectionType(Type type)
         {
             var types = new Stack<string>();
-            if (type.IsGenericType)
+            if (type.GetTypeInfo().IsGenericType)
             {
                 var nonGenericType = type.GetGenericTypeDefinition().Name.TrimEnd('`','1');
                 if (nonGenericType == "IEnumerable")
@@ -196,18 +184,18 @@ namespace EntroTester.ObjectDumper
                     nonGenericType = "List";
                 }
                 types.Push(nonGenericType);
-                return GetCollectionType(types, type.GetGenericArguments().Single());
+                return GetCollectionType(types, type.GetTypeInfo().GetGenericArguments().Single());
             }
             return type.Name;
         }
 
         static string GetCollectionType(Stack<string> types, Type type)
         {
-            if (type.IsGenericType)
+            if (type.GetTypeInfo().IsGenericType)
             {
                 var nonGenericType = type.GetGenericTypeDefinition().Name.TrimEnd('`', '1');
                 types.Push(nonGenericType);
-                return GetCollectionType(types, type.GetGenericArguments().Single());
+                return GetCollectionType(types, type.GetTypeInfo().GetGenericArguments().Single());
             }
             return types.Aggregate(type.FullName.Replace("+", "."), (s, x) => $"{x}<{s}>");
         }
@@ -229,7 +217,7 @@ namespace EntroTester.ObjectDumper
         {
             // Error-checking in called method
 
-            return Dump(value, filename, name, Encoding.Default);
+            return Dump(value, filename, name, Encoding.UTF8);
         }
 
         public static T Dump<T>(this T value, string name, string filename, Encoding encoding)
@@ -240,8 +228,9 @@ namespace EntroTester.ObjectDumper
                 throw new ArgumentNullException("filename");
             if (encoding == null)
                 throw new ArgumentNullException("encoding");
-
-            using (var writer = new StreamWriter(filename, false, encoding))
+            
+            using (var fileStream = new FileStream(filename, FileMode.CreateNew))
+            using (var writer = new StreamWriter(fileStream, encoding))
             {
                 return Dump(value, name, writer);
             }
