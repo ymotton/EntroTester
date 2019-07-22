@@ -219,8 +219,17 @@ namespace EntroBuilder
             var propertyInfo = (PropertyInfo)memberExpression.Member;
             return propertyInfo;
         }
-        static readonly MethodInfo SelectMethodInfo = typeof(Enumerable).GetMethods().First(m => m.Name == "Select");
-        static readonly MethodInfo SelectManyMethodInfo = typeof(Enumerable).GetMethods().First(m => m.Name == "SelectMany");
+
+        static MethodInfo GetMethodFromExpression<T>(Expression<Func<object, T>> expression)
+        {
+            if (expression.Body is MethodCallExpression methodCallExpression)
+            {
+                return methodCallExpression.Method.GetGenericMethodDefinition();
+            }
+            throw new NotSupportedException("Supported method call expressions are Enumerable.Select(IE<TSource> source, x => x) and Enumerable.SelectMany(IE<TSource> source, x => Enumerable.Empty<TResult>())");
+        }
+        static readonly MethodInfo SelectMethodInfo = GetMethodFromExpression(_ => Enumerable.Empty<object>().Select(x => x));
+        static readonly MethodInfo SelectManyMethodInfo = GetMethodFromExpression(_ => Enumerable.Empty<object>().SelectMany(x => Enumerable.Empty<object>()));
         public static string GetPropertyPath<T, TProperty>(this Expression<Func<T, TProperty>> propertyExpression)
         {
             var lambdaBodyExpression = propertyExpression.Body;

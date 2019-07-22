@@ -194,7 +194,7 @@ namespace EntroBuilder
                 else
                 {
                     instance = Activator.CreateInstance(type);
-                    var fields = type.GetTypeInfo().GetFields();
+                    var fields = type.GetTypeInfo().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
                     foreach (var field in fields)
                     {
                         var typeContext = context.AddField(field);

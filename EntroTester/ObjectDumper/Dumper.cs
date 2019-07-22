@@ -8,6 +8,10 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
+using System.Runtime.CompilerServices;
+[assembly: InternalsVisibleTo("EntroTester.Tests")]
+[assembly: InternalsVisibleTo("EntroTester.Tests.Core")]
+
 namespace EntroTester.ObjectDumper
 {
     internal class DumpOptions

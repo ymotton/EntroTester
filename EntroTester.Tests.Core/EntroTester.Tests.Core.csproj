@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+
+    <IsPackable>false</IsPackable>
+
+    <RootNamespace>EntroTester.Tests.Core</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\EntroTester.Tests\EntroBuilder\CompoundGeneratorTests.cs" Link="EntroBuilder\CompoundGeneratorTests.cs" />
+    <Compile Include="..\EntroTester.Tests\EntroBuilder\CustomGeneratorTests.cs" Link="EntroBuilder\CustomGeneratorTests.cs" />
+    <Compile Include="..\EntroTester.Tests\EntroBuilder\DataTypeTests.cs" Link="EntroBuilder\DataTypeTests.cs" />
+    <Compile Include="..\EntroTester.Tests\EntroBuilder\ListGeneratorTests.cs" Link="EntroBuilder\ListGeneratorTests.cs" />
+    <Compile Include="..\EntroTester.Tests\EntroBuilder\PossibleValueDistributionTests.cs" Link="EntroBuilder\PossibleValueDistributionTests.cs" />
+    <Compile Include="..\EntroTester.Tests\EntroBuilder\PropertySelectorTests.cs" Link="EntroBuilder\PropertySelectorTests.cs" />
+    <Compile Include="..\EntroTester.Tests\EntroBuilder\RangeGeneratorTests.cs" Link="EntroBuilder\RangeGeneratorTests.cs" />
+    <Compile Include="..\EntroTester.Tests\EntroBuilder\SequenceGeneratorTests.cs" Link="EntroBuilder\SequenceGeneratorTests.cs" />
+    <Compile Include="..\EntroTester.Tests\EntroTester\DumperTests.cs" Link="EntroTester\DumperTests.cs" />
+    <Compile Include="..\EntroTester.Tests\EntroTester\EntroTestRunnerTests.cs" Link="EntroTester\EntroTestRunnerTests.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Fare" Version="2.1.2" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0" />
+    <PackageReference Include="MSTest.TestAdapter" Version="1.4.0" />
+    <PackageReference Include="MSTest.TestFramework" Version="1.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="EntroBuilder\" />
+    <Folder Include="EntroTester\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EntroBuilder\EntroBuilder.csproj" />
+    <ProjectReference Include="..\EntroTester\EntroTester.csproj" />
+  </ItemGroup>
+
+</Project>
