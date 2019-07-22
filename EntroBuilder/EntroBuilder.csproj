@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard1.6</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.2.1</Version>
+    <Version>1.3.0</Version>
     <Authors>Yannick Motton</Authors>
     <Description>Library to facilitate creation of object graphs for testing purposes</Description>
     <PackageTags>EntroBuilder tests</PackageTags>

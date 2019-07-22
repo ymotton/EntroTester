@@ -58,6 +58,8 @@ namespace EntroBuilder
         }
 
         readonly Dictionary<Type, IGenerator> _typeGenerators = new Dictionary<Type, IGenerator>();
+        readonly Dictionary<Type, Type> _interfaceMap = new Dictionary<Type, Type>();
+
         public Builder<T> For<TType>(IGenerator<TType> generator)
         {
             return For(typeof(TType), generator);
@@ -65,6 +67,25 @@ namespace EntroBuilder
         public Builder<T> For(Type type, IGenerator generator)
         {
             _typeGenerators[type] = generator;
+            return this;
+        }
+
+        public Builder<T> For<TInterface, TImplementation>()
+        {
+            return For(typeof(TInterface), typeof(TImplementation));
+        }
+        public Builder<T> For(Type interfaceType, Type implementationType)
+        {
+            if (!interfaceType.IsAssignableFrom(implementationType))
+            {
+                throw new ArgumentException($"Argument {nameof(implementationType)} '{implementationType}' should be assignable to {nameof(interfaceType)} '{interfaceType}'.");
+            }
+            if (!implementationType.IsClass() || implementationType.IsAbstract())
+            {
+                throw new ArgumentException($"Argument {nameof(implementationType)} '{implementationType}' should a concrete class.");
+            }
+            _interfaceMap[interfaceType] = implementationType;
+
             return this;
         }
 
@@ -101,13 +122,13 @@ namespace EntroBuilder
         
         public T Build()
         {
-            var context = new TypeContext(typeof(T));
+            var context = new TypeContext(_interfaceMap, typeof(T));
             var item = BuildImpl(context);
             return item;
         }
         public IEnumerable<T> Take(int count)
         {
-            var context = new TypeContext(typeof(T));
+            var context = new TypeContext(_interfaceMap, typeof(T));
             for (int i = 0; i < count; i++)
             {
                 yield return BuildImpl(context);
@@ -123,6 +144,12 @@ namespace EntroBuilder
         object BuildImpl(TypeContext context, Type type, Dictionary<Type, object> classInstanceCache, bool generateNew = false)
         {
             object instance;
+
+            if (_interfaceMap.TryGetValue(type, out Type implementationType))
+            {
+                type = implementationType;
+            }
+
             IGenerator generator;
             if (_propertyGenerators.TryGetValue(context.ToString(), out generator)
              || _typeGenerators.TryGetValue(type, out generator))
@@ -149,29 +176,6 @@ namespace EntroBuilder
             else if (context.IsSequence || context.IsArray)
             {
                 instance = BuildCollectionImpl(context, type, classInstanceCache);
-            }
-            else if (context.IsClass)
-            {
-                // The root object should only served from cache if we are in a nested part of the object graph
-                // This cache is used to reduce endless recursion
-                if (generateNew || !classInstanceCache.TryGetValue(type, out instance))
-                {
-                    if (context.IsAbstract)
-                    {
-                        return null;
-                    }
-
-                    instance = Activator.CreateInstance(type, true);
-                    classInstanceCache[type] = instance;
-
-                    foreach (var property in context.Properties)
-                    {
-                        var propertyContext = context.AddProperty(property);
-                        var propertyType = property.PropertyType;
-                        object value = BuildImpl(propertyContext, propertyType, classInstanceCache);
-                        propertyContext.SetValue(instance, value);
-                    }
-                }
             }
             else if (context.IsEnum)
             {
@@ -206,9 +210,32 @@ namespace EntroBuilder
                     }
                 }
             }
+            else if (context.IsClass)
+            {
+                // The root object should only served from cache if we are in a nested part of the object graph
+                // This cache is used to reduce endless recursion
+                if (generateNew || !classInstanceCache.TryGetValue(type, out instance))
+                {
+                    if (context.IsAbstract)
+                    {
+                        return null;
+                    }
+
+                    instance = Activator.CreateInstance(type, true);
+                    classInstanceCache[type] = instance;
+
+                    foreach (var property in context.Properties)
+                    {
+                        var propertyContext = context.AddProperty(property);
+                        var propertyType = property.PropertyType;
+                        object value = BuildImpl(propertyContext, propertyType, classInstanceCache);
+                        propertyContext.SetValue(instance, value);
+                    }
+                }
+            }
             else
             {
-                throw new NotSupportedException();
+                throw new NotSupportedException($"Type {type} @ {context} does not have a built-in generator, and no user-defined generator was provided. See Builder<T>.For<TInterface, TImplementation>().");
             }
 
             return instance;
@@ -271,6 +298,7 @@ namespace EntroBuilder
 
         class TypeContext
         {
+            readonly Dictionary<Type, Type> _interfaceMap;
             readonly string _path;
             readonly Dictionary<MemberInfo, TypeContext> _memberContexts;
             readonly PropertyInfo _propertyInfo;
@@ -284,10 +312,11 @@ namespace EntroBuilder
             public readonly bool IsAbstract;
             public readonly PropertyInfo[] Properties;
 
-            public TypeContext(Type type) : this(type.Name, type) { }
+            public TypeContext(Dictionary<Type, Type> interfaceMap, Type type) 
+                : this(interfaceMap, type.Name, type) { }
 
             TypeContext(TypeContext context, PropertyInfo propertyInfo)
-                : this(context._path + "." + propertyInfo.Name, propertyInfo.PropertyType)
+                : this(context._interfaceMap, context._path + "." + propertyInfo.Name, propertyInfo.PropertyType)
             {
                 var propertyOnDeclaringType = propertyInfo.DeclaringType?.GetTypeInfo().GetProperty(propertyInfo.Name);
                 if (propertyOnDeclaringType == null) return;
@@ -295,9 +324,16 @@ namespace EntroBuilder
                 _propertyInfo = propertyOnDeclaringType;
             }
             TypeContext(TypeContext context, FieldInfo fieldInfo)
-                : this(context._path + "." + fieldInfo.Name, fieldInfo.FieldType) { }
-            TypeContext(string path, Type type)
+                : this(context._interfaceMap, context._path + "." + fieldInfo.Name, fieldInfo.FieldType) { }
+
+            TypeContext(Dictionary<Type, Type> interfaceMap, string path, Type type)
             {
+                _interfaceMap = interfaceMap;
+                if (interfaceMap.TryGetValue(type, out Type implementationType))
+                {
+                    type = implementationType;
+                }
+
                 _path = path;
                 _memberContexts = new Dictionary<MemberInfo, TypeContext>();
 
@@ -343,7 +379,7 @@ namespace EntroBuilder
             {
                 if (_sequenceElementContext == null)
                 {
-                    _sequenceElementContext = new TypeContext(_path, type);
+                    _sequenceElementContext = new TypeContext(_interfaceMap, _path, type);
                 }
                 return _sequenceElementContext;
             }
