@@ -85,7 +85,7 @@ The builder can produce instances of `int` by either calling `Build()`, either `
     var myInteger = builder.Build();   // Produces an Integer instance
     var myIntegers = builder.Take(10); // Produces 10 Integer instances
 
-#### Overriding default generation strategy
+#### Overriding default generation strategy for specific type
 
 The following creates an `Order` for which all properties of type `int` will have a value between `0` and `10`.
 
@@ -114,4 +114,41 @@ The following creates an `Order` for which the `OrderLines` will have an Amount 
                            Any.ValueBetween(0.01M, 1.99M))
                        .Build();
 
-*TODO: Elaborate*
+#### Overriding type mapping
+
+When working with interface or base class properties, it is necessary to provide EntroBuilder with hints for which concrete type to instantiate.
+
+    interface ICustomer { }
+    class MyCustomer : ICustomer { }
+
+    class Order
+    {
+        public ICustomer Customer { get; set; }
+    }
+    
+    var order = Builder.Create<Order>()
+                       .For<ICustomer, MyCustomer>()
+                       .Build();
+    
+### Fallback generation strategy for any type not supported out-of-the box or by the user
+
+Whenever the generation strategy cannot be expressed statically, or a convention-based rule is more fitting in your context you can use the `Builder<T>.Configure(...)` directive to configure custom behavior.
+
+    interface ICustomer { }
+    class MyCustomer : ICustomer { }
+
+    interface IProduct { }
+    class MyProduct : IProduct { }
+
+    class Order
+    {
+        public ICustomer Customer { get; set; }
+        public IProduct Product { get; set; }
+    }
+    
+    // This IFallbackGenerator scans the interface assembly for a concrete class that implements the interface.
+    // DefaultInterfaceImplementationFallbackGenerator can be constructed with a list of assemblies 
+    // if the assemblies to be scanned is different from the assembly containing the interfaces
+    var order = Builder.Create<Order>()
+                       .Configure(new Builder.Configuration { FallbackGenerator = new DefaultInterfaceImplementationFallbackGenerator() })
+                       .Build();

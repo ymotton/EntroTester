@@ -9,9 +9,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="..\EntroTester.Tests\EntroBuilder\BuilderTests.cs" Link="EntroBuilder\BuilderTests.cs" />
     <Compile Include="..\EntroTester.Tests\EntroBuilder\CompoundGeneratorTests.cs" Link="EntroBuilder\CompoundGeneratorTests.cs" />
     <Compile Include="..\EntroTester.Tests\EntroBuilder\CustomGeneratorTests.cs" Link="EntroBuilder\CustomGeneratorTests.cs" />
     <Compile Include="..\EntroTester.Tests\EntroBuilder\DataTypeTests.cs" Link="EntroBuilder\DataTypeTests.cs" />
+    <Compile Include="..\EntroTester.Tests\EntroBuilder\ForTests.cs" Link="EntroBuilder\ForTests.cs" />
     <Compile Include="..\EntroTester.Tests\EntroBuilder\ListGeneratorTests.cs" Link="EntroBuilder\ListGeneratorTests.cs" />
     <Compile Include="..\EntroTester.Tests\EntroBuilder\PossibleValueDistributionTests.cs" Link="EntroBuilder\PossibleValueDistributionTests.cs" />
     <Compile Include="..\EntroTester.Tests\EntroBuilder\PropertySelectorTests.cs" Link="EntroBuilder\PropertySelectorTests.cs" />
@@ -29,7 +31,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="EntroBuilder\" />
     <Folder Include="EntroTester\" />
   </ItemGroup>
 

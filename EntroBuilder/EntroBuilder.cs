@@ -5,6 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
+using EntroBuilder.FallbackGenerators;
 using EntroBuilder.Generators;
 
 namespace EntroBuilder
@@ -113,13 +114,20 @@ namespace EntroBuilder
             return result;
         }
 
-        ListGenerator.Configuration _listGeneratorConfiguration;
-        public Builder<T> Configure(ListGenerator.Configuration configuration)
+        Builder.Configuration _builderConfiguration;
+        public Builder<T> Configure(Builder.Configuration builderConfiguration)
         {
-            _listGeneratorConfiguration = configuration;
+            _builderConfiguration = builderConfiguration;
             return this;
         }
-        
+
+        ListGenerator.Configuration _listGeneratorConfiguration;
+        public Builder<T> Configure(ListGenerator.Configuration listGeneratorConfiguration)
+        {
+            _listGeneratorConfiguration = listGeneratorConfiguration;
+            return this;
+        }
+
         public T Build()
         {
             var context = new TypeContext(_interfaceMap, typeof(T));
@@ -232,6 +240,10 @@ namespace EntroBuilder
                         propertyContext.SetValue(instance, value);
                     }
                 }
+            }
+            else if (_builderConfiguration?.FallbackGenerator != null
+                && _builderConfiguration.FallbackGenerator.TryNext(type, _random, out instance))
+            {
             }
             else
             {
@@ -399,6 +411,11 @@ namespace EntroBuilder
 
     public static class Builder
     {
+        public class Configuration
+        {
+            public IFallbackGenerator FallbackGenerator { get; set; }
+        }
+
         public static Builder<T> Create<T>() 
         {
             var builder = new Builder<T>();
