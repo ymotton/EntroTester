@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using EntroTester.ObjectDumper;
 using EntroBuilder;
@@ -10,10 +11,17 @@ namespace EntroTester.Tests.EntroTester
     [TestClass]
     public class DumperTests
     {
+        public enum Types
+        {
+            Type1 = 1,
+            Type2 = 2
+        }
         public class Parent
         {
             public List<Child> Children { get; set; }
-            public string Foo { get; set; } 
+            public string Foo { get; set; }
+            public Types? TypeA { get; set; }
+            public Types TypeB { get; set; }
         }
 
         public class Child
@@ -41,6 +49,7 @@ namespace EntroTester.Tests.EntroTester
                 .Take(3).ToList();
             var dumpToString = parents.DumpToString("parents");
             Assert.IsNotNull(dumpToString);
+            Console.WriteLine(dumpToString);
         }
     }
 }

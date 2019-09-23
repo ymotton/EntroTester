@@ -77,6 +77,12 @@ namespace EntroTester.ObjectDumper
 
             Type type = value.GetType();
 
+            var underlyingType = (Nullable.GetUnderlyingType(type) ?? type).GetTypeInfo();
+            if (underlyingType.IsEnum)
+            {
+                writer.Write("{0}{1}{2}.{3}", indentation, prefix, underlyingType.Name, value);
+                return;
+            }
             if (new []
                 {
                     typeof (int), typeof(short), typeof(long), typeof(float), typeof(double), typeof(decimal), typeof(bool), typeof (byte),
