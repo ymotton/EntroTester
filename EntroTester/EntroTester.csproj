@@ -1,9 +1,9 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard1.6</TargetFramework>
     <Description>Library to facilitate automated blackbox testing to discover unhandeled branches</Description>
-    <Version>1.4.1</Version>
+    <Version>1.5.0</Version>
     <Authors>Yannick Motton</Authors>
     <PackageTags>EntroTester Test</PackageTags>
     <Copyright>Copyright 2019</Copyright>
