@@ -3,13 +3,13 @@
   <PropertyGroup>
     <TargetFramework>netstandard1.6</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.5.0</Version>
+    <Version>1.6.0</Version>
     <Authors>Yannick Motton</Authors>
     <Description>Library to facilitate creation of object graphs for testing purposes</Description>
     <PackageTags>EntroBuilder tests</PackageTags>
     <Copyright>Copyright 2019</Copyright>
     <PackageLicenseUrl>https://github.com/ymotton/EntroTester/blob/master/LICENSE.txt</PackageLicenseUrl>
-    <AssemblyVersion>1.5.0.0</AssemblyVersion>
+    <AssemblyVersion>1.6.0.0</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>
