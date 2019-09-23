@@ -46,5 +46,58 @@ namespace EntroTester.Tests.EntroBuilder
             Assert.IsNotNull(instance.Children.First().Ints);
             Assert.AreEqual(1, instance.Children.First().Ints.First());
         }
+        [TestMethod]
+        public void Property_WithFirstSelectorOfArray_Works()
+        {
+            var instance = Builder.Create<Parent>()
+                .Property(x => x.Children.First().Ints, Is.Value(1))
+                .Build();
+
+            Assert.IsNotNull(instance);
+            Assert.IsNotNull(instance.Children);
+            Assert.IsNotNull(instance.Children.First());
+            Assert.IsNotNull(instance.Children.First().Ints);
+            Assert.AreEqual(1, instance.Children.First().Ints.First());
+        }
+        
+        [TestMethod]
+        public void Property_WithFirstOrDefaultSelectorOfArray_Works()
+        {
+            var instance = Builder.Create<Parent>()
+                .Property(x => x.Children.FirstOrDefault().Ints, Is.Value(1))
+                .Build();
+
+            Assert.IsNotNull(instance);
+            Assert.IsNotNull(instance.Children);
+            Assert.IsNotNull(instance.Children.First());
+            Assert.IsNotNull(instance.Children.First().Ints);
+            Assert.AreEqual(1, instance.Children.First().Ints.First());
+        }
+        [TestMethod]
+        public void Property_WithSingleSelectorOfArray_Works()
+        {
+            var instance = Builder.Create<Parent>()
+                .Property(x => x.Children.Single().Ints, Is.Value(1))
+                .Build();
+
+            Assert.IsNotNull(instance);
+            Assert.IsNotNull(instance.Children);
+            Assert.IsNotNull(instance.Children.First());
+            Assert.IsNotNull(instance.Children.First().Ints);
+            Assert.AreEqual(1, instance.Children.First().Ints.First());
+        }
+        [TestMethod]
+        public void Property_WithSingleOrDefaultSelectorOfArray_Works()
+        {
+            var instance = Builder.Create<Parent>()
+                .Property(x => x.Children.SingleOrDefault().Ints, Is.Value(1))
+                .Build();
+
+            Assert.IsNotNull(instance);
+            Assert.IsNotNull(instance.Children);
+            Assert.IsNotNull(instance.Children.First());
+            Assert.IsNotNull(instance.Children.First().Ints);
+            Assert.AreEqual(1, instance.Children.First().Ints.First());
+        }
     }
 }

@@ -240,6 +240,11 @@ namespace EntroBuilder
             if (memberExpression != null)
             {
                 path = memberExpression.ToString();
+                path = path
+                    .Replace(".First()", "")
+                    .Replace(".FirstOrDefault()", "")
+                    .Replace(".Single()", "")
+                    .Replace(".SingleOrDefault()", "");
                 int firstDotOffset = path.IndexOf('.');
                 if (firstDotOffset == -1)
                     return path;
