@@ -1,12 +1,11 @@
-﻿using System;
+﻿using EntroBuilder.FallbackGenerators;
+using EntroBuilder.Generators;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
-using EntroBuilder.FallbackGenerators;
-using EntroBuilder.Generators;
 
 namespace EntroBuilder
 {
@@ -235,7 +234,7 @@ namespace EntroBuilder
             {
                 // The root object should only served from cache if we are in a nested part of the object graph
                 // This cache is used to reduce endless recursion
-                if (generateNew || !classInstanceCache.TryGetValue(type, out instance))
+                if (generateNew || !(_builderConfiguration?.ReuseNestedTypes ?? false) || !classInstanceCache.TryGetValue(type, out instance))
                 {
                     if (context.IsAbstract)
                     {
@@ -426,6 +425,7 @@ namespace EntroBuilder
     {
         public class Configuration
         {
+            public bool ReuseNestedTypes { get; set; }
             public IFallbackGenerator FallbackGenerator { get; set; }
         }
 
