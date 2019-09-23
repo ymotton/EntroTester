@@ -232,11 +232,15 @@ namespace EntroBuilder
         static readonly MethodInfo SelectManyMethodInfo = GetMethodFromExpression(_ => Enumerable.Empty<object>().SelectMany(x => Enumerable.Empty<object>()));
         public static string GetPropertyPath<T, TProperty>(this Expression<Func<T, TProperty>> propertyExpression)
         {
-            var lambdaBodyExpression = propertyExpression.Body;
+            var bodyExpression = propertyExpression.Body;
+            if (bodyExpression is UnaryExpression unaryExpression)
+            {
+                bodyExpression = unaryExpression.Operand;
+            }
 
             string path;
 
-            var memberExpression = lambdaBodyExpression as MemberExpression;
+            var memberExpression = bodyExpression as MemberExpression;
             if (memberExpression != null)
             {
                 path = memberExpression.ToString();
@@ -253,8 +257,7 @@ namespace EntroBuilder
             else
             {
                 // Only accept Select at the end of the expression
-                // SelectMany would not make much sense
-                var methodCallExpression = (MethodCallExpression)lambdaBodyExpression;
+                var methodCallExpression = (MethodCallExpression)bodyExpression;
                 var methodDefinition = methodCallExpression.Method.GetGenericMethodDefinition();
                 if (methodDefinition != SelectMethodInfo && methodDefinition != SelectManyMethodInfo)
                 {

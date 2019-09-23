@@ -97,6 +97,13 @@ namespace EntroBuilder
             _propertyGenerators[path] = generator;
             return this;
         }
+        public Builder<T> Property<TProperty>(Expression<Func<T, TProperty?>> propertyExpression, IGenerator<TProperty> generator)
+            where TProperty : struct
+        {
+            var path = propertyExpression.GetPropertyPath();
+            _propertyGenerators[path] = generator;
+            return this;
+        }
         public Builder<T> Property<TProperty>(Expression<Func<T, TProperty>> propertyExpression, IEnumerable<TProperty> sequence)
         {
             var result = Property(propertyExpression, new SequenceGenerator<TProperty>(sequence));
@@ -165,6 +172,7 @@ namespace EntroBuilder
                 // If the generator returns a T[] and the property takes a T[]
                 var generatorType = generator.GetType();
                 var isGeneric = generatorType.ImplementsGenericInterface(typeof(IGenerator<>));
+                var underlyingType = Nullable.GetUnderlyingType(type);
 
                 // If it's a typeless generator, try to match the returnvalue with property
                 // This will produce a runtime error, if it cannot be matched
@@ -172,7 +180,12 @@ namespace EntroBuilder
                 {
                     instance = generator.Next(_random);
                 }
-                else
+                else if (underlyingType != null)
+                {
+                    var value = generator.Next(_random);
+                    instance = value == null ? null : Convert.ChangeType(value, underlyingType);
+                }
+                else 
                 {
                     instance = BuildCollectionForGeneratorImpl(type, generator);
                 }
@@ -302,7 +315,7 @@ namespace EntroBuilder
             }
             else
             {
-                throw new NotSupportedException();
+                throw new NotSupportedException($"Unsupported type '{propertyType}' and list generator '{generatorType}' combination.");
             }
 
             return instance;
